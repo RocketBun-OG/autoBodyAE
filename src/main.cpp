@@ -5,12 +5,11 @@
 #include <papyrusfunc.h>
 #include <presetmanager.h>
 
-// Credit to Sairion for open sourcing OBody-SKSE, I used his code as
-// reference in a number of places including: NORefit. It's a direct rip.
-// Excellent trickery with the sliders, Sairion. event handling the
-// MessageHandler skeleton & morph interface handshake morphman.h
-// (specifically for getWeight as well as the conceptual idea of using a morph
-// to mark an actor as genned).
+// Credit to Sairion for open sourcing OBody-SKSE, I used his code as reference in a number of places including:
+//NORefit. It's a direct rip. Excellent trickery with the sliders, Sairion.
+//event handling
+//the MessageHandler skeleton & morph interface handshake
+//morphman.h (specifically for getWeight as well as the conceptual idea of using a morph to mark an actor as genned).
 namespace
 {
 	// this basically serves as our init function
@@ -62,11 +61,7 @@ namespace
 		// work.
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-#ifndef NDEBUG
-		const auto level = spdlog::level::trace;
-#else
 		const auto level = spdlog::level::info;
-#endif
 
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(level);
