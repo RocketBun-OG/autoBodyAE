@@ -1,7 +1,10 @@
 # autoBody AE
 A SKSE Plugin for distributing CBBE and HIMBO presets throughout the gameworld
 * Configurable through morphs.ini files (optionally created by [JBS2BG](https://www.nexusmods.com/skyrim/mods/88707/)), just like Racemenu's Bodygen
-* Faction **and** race support! formatted in morphs.ini like this: ``All|Female|TownWhiterunFaction`` or ``All|Female|NordRace``. Uses EditorIDs just like Bodygen does. 
+* Faction **and** race support! Formatted in morphs.ini like this: 
+	* ``All|Female|TownWhiterunFaction``
+	* ``All|Female|NordRace``
+	* Uses EditorIDs just like Bodygen does. 
 * Reimplementation of [Obody's](https://www.nexusmods.com/skyrimspecialedition/mods/51084) ORefit algorithm! 
 ## Development/Compile Requirements
 * [CMake](https://cmake.org/)
