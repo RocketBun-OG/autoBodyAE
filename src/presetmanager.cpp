@@ -41,36 +41,38 @@ namespace Presets
 		bool found = false;
 
 		auto container = Presets::PresetContainer::GetInstance();
-		std::vector<categorizedList> racelist;
-		std::vector<categorizedList> faclist;
-		std::vector<categorizedList> charlist;
+		logger::trace("The size of the container sublist is {}, and the size of the container masterlist is {}",
+			container->femaleRaceCategorySet.size(), container->femaleMasterSet.size());
+		std::vector<categorizedList>* racelist{ new std::vector<categorizedList> };
+		std::vector<categorizedList>* faclist{ new std::vector<categorizedList> };
+		std::vector<categorizedList>* charlist{ new std::vector<categorizedList> };
 
 		auto sexint = a_actor->GetActorBase()->GetSex();
 
 		//first we check to see if the actor is male or female, to search through the right lists.
 		std::string sex;
 		if (sexint == 1) {
-			logger::trace("Sex is female.");
-			racelist = container->femaleRaceCategorySet;
-			faclist = container->femaleFactionCategorySet;
-			charlist = container->femaleCharacterCategorySet;
+			//logger::trace("Sex is female.");
+			racelist = &container->femaleRaceCategorySet;
+			faclist = &container->femaleFactionCategorySet;
+			charlist = &container->femaleCharacterCategorySet;
 
 			sex = "Female";
 
 		} else {
-			logger::trace("Sex is male");
-			racelist = container->maleRaceCategorySet;
-			faclist = container->maleFactionCategorySet;
-			charlist = container->maleCharacterCategorySet;
+			//logger::trace("Sex is male");
+			racelist = &container->maleRaceCategorySet;
+			faclist = &container->maleFactionCategorySet;
+			charlist = &container->maleCharacterCategorySet;
 
 			sex = "Male";
 		}
 
 		if (racesex) {
 			auto raceName = a_actor->GetActorBase()->GetRace()->GetFormEditorID();
-			// logger::trace("Race name is: {}", raceName);
-			for (categorizedList list : racelist) {
-				// logger::trace("list sex: {} list race: {}", list.sex, list.race);
+			logger::trace("Race name is: {}", raceName);
+			for (categorizedList list : *racelist) {
+				logger::trace("list sex: {} list race: {}", list.sex, list.race);
 				if (raceName == list.race) {
 					logger::trace("Race match for actor {} found!", a_actor->GetName());
 					found = true;
@@ -80,17 +82,18 @@ namespace Presets
 
 		// Needs po3's tweaks to work or will CTD
 		if (faction) {
+			logger::trace("Looking for a faction.");
 			auto ranklist = a_actor->GetActorBase()->factions;
 
 			// this function is a headache so here's a walkthrough
 			// for each faction found in the actors list:
 			for (RE::FACTION_RANK rank : ranklist) {
 				// for each faction in the faction preset list:
-				for (categorizedList fac : faclist) {
+				for (categorizedList fac : *faclist) {
 					// look up the TESForm associated with the one in fac using the form
 					// editor ID string contained in fac.faction
 					auto target = RE::TESFaction::LookupByEditorID(fac.faction);
-					//logger::trace("{} is what we're looking at in the faction loop", fac.faction);
+					logger::trace("{} is what we're looking at in the faction loop", fac.faction);
 					// if the form matches the form of the faction we're looking at in the
 					// actors list, we have a match
 					if (rank.faction == target) {
@@ -102,9 +105,9 @@ namespace Presets
 		}
 
 		uint32_t actorID = a_actor->GetActorBase()->formID;
-		// logger::trace("ActorID is {}", actorID);
-		for (categorizedList list : charlist) {
-			// logger::trace("FormID in the INI is {}", list.formID);
+		logger::trace("ActorID is {}", actorID);
+		for (categorizedList list : *charlist) {
+			logger::trace("FormID in the INI is {}", list.formID);
 			if (actorID == list.formID) {
 				logger::trace("{} found a matching config in the INI!", a_actor->GetName());
 				found = true;
@@ -127,25 +130,28 @@ namespace Presets
 			auto morphman = Bodygen::Morphman::GetInstance();
 			logger::trace("NPC {} is being examined.", actor->GetName());
 
-			if (!morphman->IsGenned(actor) || !genOverride) {
+			if (!morphman->IsGenned(actor) || genOverride) {
+				//logger::trace("We've entered the inner loop of handlegen.");
 				auto player = RE::PlayerCharacter::GetSingleton();
 				playerID = player->formID;
 				//// if we're processing the player load, ignore it and mark the player as
 				/// processed so we don't spam the debug log.
 				if (actor->formID == playerID) {
 					morphman->morphInterface->SetMorph(actor, "autobody_processed", "autoBody", 1.0f);
-					logger::trace("We've detected the player. Skipping preset application.");
+					//logger::trace("We've detected the player. Skipping preset application.");
 					return RE::BSEventNotifyControl::kContinue;
 				}
 
 				// if an actor is specifically identified in the INI, apply their preset
 				// over everything else and return.
 				if (Presets::isInINI(actor)) {
+					//logger::trace("The actor is in the INI.");
 					morphman->ApplyPreset(actor, Presets::findActorInINI(actor));
 					return RE::BSEventNotifyControl::kContinue;
 				}
 
 				else if (morphman->usingFaction && Presets::isInINI(actor, false, true)) {
+					//logger::trace("The faction is in the INI.");
 					morphman->ApplyPreset(actor, Presets::findFactionInINI(actor));
 					// if faction priority is enabled, the control flow stops here if a
 					// faction body is found. Otherwise, itll check for race too and that
@@ -158,6 +164,7 @@ namespace Presets
 				// if their race/sex combo is identified in the INI, apply that preset
 				// over everything else and return.
 				else if (Presets::isInINI(actor, true, false) && morphman->usingRace) {
+					//logger::trace("The race is in the INI");
 					morphman->ApplyPreset(actor, Presets::findRaceSexInINI(actor));
 					return RE::BSEventNotifyControl::kContinue;
 				} else {
@@ -215,7 +222,7 @@ namespace Presets
 	// there if you want to know more.
 	std::vector<bodypreset> findFactionInINI(RE::Actor* a_actor)
 	{
-		logger::trace("Entered findfactioninINI");
+		//logger::trace("Entered findfactioninINI");
 		auto ranklist = a_actor->GetActorBase()->factions;
 
 		//sex check!
@@ -324,7 +331,7 @@ namespace Presets
 					presetgroups->push_back(cat_node->first_attribute()->value());
 				}
 
-				logger::trace("preset name being loaded is {}", *presetname);
+				//logger::trace("preset name being loaded is {}", *presetname);
 				// discard clothed presets.
 				if (presetname->find("Cloth") != -1 || presetname->find("cloth") != -1 || presetname->find("Outfit") != -1 ||
 					presetname->find("outfit") != -1) {
@@ -397,11 +404,11 @@ namespace Presets
 				// again.
 				for (std::string item : *presetgroups) {
 					if (item._Equal("CBBE") || item._Equal("3BBB") || item._Equal("CBAdvanced")) {
-						logger::trace("Female preset found!");
+						//logger::trace("Female preset found!");
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
 					} else if (item._Equal("HIMBO")) {
-						logger::trace("Male preset found!");
+						//logger::trace("Male preset found!");
 						malelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
 					}
@@ -569,10 +576,10 @@ namespace Presets
 				bool faction = false;
 				bool race = false;
 
-				std::vector<categorizedList> characterCategorySet;
-				std::vector<categorizedList> raceCategorySet;
-				std::vector<categorizedList> factionCategorySet;
-				std::vector<bodypreset> masterSet;
+				std::vector<categorizedList>* characterCategorySet{ new std::vector<categorizedList> };
+				std::vector<categorizedList>* raceCategorySet{ new std::vector<categorizedList> };
+				std::vector<categorizedList>* factionCategorySet{ new std::vector<categorizedList> };
+				std::vector<bodypreset>* masterSet{ new std::vector<bodypreset> };
 
 				std::string name = keylistIter->pItem;
 
@@ -595,26 +602,13 @@ namespace Presets
 
 				// identifying discriminators
 
-				// if we spot a faction name, fill the faction tag. If we spot a race
-				// name, fill the race tag.
-				if (name.find("Faction") != -1) {
-					logger::trace("Faction is: {}", name);
-					parsedlist.faction = name;
-					faction = true;
-
-				} else if (name.find("Race") != -1) {
-					logger::trace("Race is: {}", name);
-					parsedlist.race = name;
-					race = true;
-				}
-
 				// sex identification
 				if (name.find("Female") != -1) {
 					logger::trace("Female preset identified in morphs.ini");
-					characterCategorySet = container->femaleCharacterCategorySet;
-					raceCategorySet = container->femaleRaceCategorySet;
-					factionCategorySet = container->femaleFactionCategorySet;
-					masterSet = container->femaleMasterSet;
+					characterCategorySet = &container->femaleCharacterCategorySet;
+					raceCategorySet = &container->femaleRaceCategorySet;
+					factionCategorySet = &container->femaleFactionCategorySet;
+					masterSet = &container->femaleMasterSet;
 
 					// sex identification
 					parsedlist.sex = "Female";
@@ -625,10 +619,10 @@ namespace Presets
 
 				else if (name.find("Male") != -1) {
 					logger::trace("male preset identified in morphs.ini.");
-					characterCategorySet = container->maleCharacterCategorySet;
-					raceCategorySet = container->maleRaceCategorySet;
-					factionCategorySet = container->maleFactionCategorySet;
-					masterSet = container->maleMasterSet;
+					characterCategorySet = &container->maleCharacterCategorySet;
+					raceCategorySet = &container->maleRaceCategorySet;
+					factionCategorySet = &container->maleFactionCategorySet;
+					masterSet = &container->maleMasterSet;
 
 					parsedlist.sex = "Male";
 					eraseamount = name.find("Male");
@@ -645,13 +639,26 @@ namespace Presets
 					// auto actor = RE::TESObjectREFR::LookupByID<RE::Actor>(hexnumber);
 				}
 
+				// if we spot a faction name, fill the faction tag. If we spot a race
+				// name, fill the race tag.
+				if (name.find("Faction") != -1) {
+					logger::trace("Faction is: {}", name);
+					parsedlist.faction = name;
+					faction = true;
+
+				} else if (name.find("Race") != -1) {
+					logger::trace("Race is: {}", name);
+					parsedlist.race = name;
+					race = true;
+				}
+
 				// chop up the presets into substrings
 				while (value.find("|") != -1) {
 					eraseamount = value.find_first_of("|");
 					preset = value.substr(0, eraseamount);
 					//logger::trace("attempting to find preset {} in the master list", preset);
 					//logger::trace("the master set has {} elements in it, and its first element is {}", masterSet.size(), masterSet.begin()[0].name);
-					bodysliders = FindPresetByName(masterSet, preset);
+					bodysliders = FindPresetByName(*masterSet, preset);
 
 					// push the preset body in if there is one.
 					if (bodysliders != notfound) {
@@ -672,7 +679,7 @@ namespace Presets
 					//logger::trace("Attempting to find preset {} in the master list (singular)", value);
 					//logger::trace("the master set has {} elements in it, and its first element is {}", masterSet.size(), masterSet.begin()[0].name);
 
-					bodysliders = FindPresetByName(masterSet, value);
+					bodysliders = FindPresetByName(*masterSet, value);
 					if (bodysliders != notfound) {
 						logger::trace("Pushing singular preset into categorizedSet!");
 						parsedlist.categorizedSet.push_back(bodysliders);
@@ -694,19 +701,20 @@ namespace Presets
 					logger::trace("Beginning pass of parsedList!");
 					if (parsedlist.formID != 0) {
 						logger::trace("formID {} is being passed into the character list!", name);
-						characterCategorySet.push_back(parsedlist);
+						characterCategorySet->push_back(parsedlist);
 					}
 
 					// if its a race preset, it goes into the race list.
 					else if (race) {
 						logger::trace("{} is being passed to the raceSex list!", parsedlist.race);
-						raceCategorySet.push_back(parsedlist);
+						raceCategorySet->push_back(parsedlist);
 					}
 
 					// if it's a faction preset, it goes into the faction list.
 					else if (faction) {
+						logger::trace("The faction data is {} elements long", parsedlist.categorizedSet.size());
 						logger::trace("{} is being passed to the faction list!", parsedlist.faction);
-						factionCategorySet.push_back(parsedlist);
+						factionCategorySet->push_back(parsedlist);
 					}
 				} else {
 					logger::trace("Preset category was empty! We're not adding it.");

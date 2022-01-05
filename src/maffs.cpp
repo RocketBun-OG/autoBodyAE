@@ -15,7 +15,7 @@ float InterpolateSliderValue(Presets::slider bodyslider, float weight)
 // creates a completed body for application to an actor. These are discarded after use.
 Presets::completedbody InterpolateAllValues(Presets::bodypreset body, float weight, float weightbias)
 {
-	logger::trace("Interpolation is taking place.");
+	//logger::trace("Interpolation is taking place.");
 	Presets::completedbody out;
 	weight = weight + weightbias;
 	if (weight > 100) {

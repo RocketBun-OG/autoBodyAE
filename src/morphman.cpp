@@ -120,13 +120,16 @@ namespace Bodygen
 	// apply or remove clothing sliders from an actor.
 	void Morphman::ProcessClothing(RE::Actor* a_actor, bool unequip = false)
 	{
-		auto modifiers = FinishClothing(a_actor);
-		if (unequip) {
-			logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
-			morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
-		} else {
-			logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
-			ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
+		auto sexint = a_actor->GetActorBase()->GetSex();
+		if (sexint == 1) {
+			auto modifiers = FinishClothing(a_actor);
+			if (unequip) {
+				//logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
+				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
+			} else {
+				//logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
+				ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
+			}
 		}
 	}
 
@@ -143,7 +146,7 @@ namespace Bodygen
 	// how fat are they? lul
 	float Morphman::GetWeight(RE::Actor* a_actor)
 	{
-		logger::trace("getting actor weight.");
+		//logger::trace("getting actor weight.");
 		return a_actor->GetActorBase()->GetWeight() / 100.0f;
 	}
 };  // namespace Bodygen
