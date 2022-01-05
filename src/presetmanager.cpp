@@ -586,7 +586,7 @@ namespace Presets
 
 			auto container = PresetContainer::GetInstance();
 
-			// reading NOMorphs.ini
+			// reading Morphs.ini
 			morphsINI.SetUnicode();
 			morphsINI.SetMultiKey();
 
