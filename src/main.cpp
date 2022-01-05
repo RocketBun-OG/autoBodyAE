@@ -1,4 +1,5 @@
 #pragma once
+#include <Inverts.h>
 #include <SimpleIni.h>
 #include <eventhandling.h>
 #include <maffs.h>
@@ -106,7 +107,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
 
 	Presets::Parsing::CheckMorphConfig();
-	presetcontainer->maleFactionCategorySet.size();
+
 	auto papyrus = SKSE::GetPapyrusInterface();
 	if (!papyrus->Register(PapyrusBridging::BindAllFunctions)) {
 		logger::critical("Papyrus bridge failed!");
