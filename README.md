@@ -7,10 +7,13 @@ A SKSE Plugin for distributing CBBE and HIMBO presets throughout the gameworld
 	* Uses EditorIDs just like Bodygen does. 
 * Reimplementation of [Obody's](https://www.nexusmods.com/skyrimspecialedition/mods/51084) ORefit algorithm! 
 ## Differences from Bodygen
-* Addition of more extensive config options, including weight biasing, faction bodies, two different preset loading locations (just in your bodyslide SliderPresets, or specifically in the mod preset folder)
+* Addition of more extensive config options, faction bodies, two different preset loading locations (just in your bodyslide SliderPresets, or specifically in the mod preset folder), whether or not faction bodies take priority, etc. 
 * Automatically prevents ALL clothed presets from loading
 * Male support! 
-* Can use actor's weight settings or random weightings. 
+* Can use actor's weight settings, a specific weight, or totally random weights. No more fiddling in JBS2BG! 
+* In-game actor tweak menu mapped to the ``;`` key. Change their preset if you don't like it, and it'll stay that way! 
+* Regenerate Actor Spell! Re-run the generation algorithm on any actor at will! 
+
 ## Development/Compile Requirements
 * [CMake](https://cmake.org/)
 	* Add this to your `PATH`

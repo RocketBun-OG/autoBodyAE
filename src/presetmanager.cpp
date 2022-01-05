@@ -167,7 +167,7 @@ namespace Presets
 					morphman->ApplyPreset(actor, Presets::findRaceSexInINI(actor));
 					return RE::BSEventNotifyControl::kContinue;
 				} else {
-					logger::trace("Actor matched no categories.");
+					//ogger::trace("Actor matched no categories.");
 				}
 
 				//if we don't know any info, we have to identify their sex.

@@ -21,18 +21,18 @@ Presets::completedbody InterpolateAllValues(Presets::bodypreset body, int weight
 	//based on options set in the config, influence weight differently.
 	switch (morphman->weightOptions) {
 	case 0:
-		logger::trace("Using standard actor weight.");
+		//logger::trace("Using standard actor weight.");
 		weight = weight;
 		break;
 	case 1:
-		logger::trace("Using random weight.");
+		//logger::trace("Using random weight.");
 		weight = rand() % 100;
-		logger::trace("Random number selected was {}", weight);
+		//logger::trace("Random number selected was {}", weight);
 		break;
 	case 2:
-		logger::trace("Using specific weight of {}", morphman->weightSpecific);
+		//logger::trace("Using specific weight of {}", morphman->weightSpecific);
 		weight = morphman->weightSpecific;
-		logger::trace("Specific weight is {}", weight);
+		//logger::trace("Specific weight is {}", weight);
 		break;
 	}
 
