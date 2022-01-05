@@ -31,7 +31,7 @@ namespace Presets
 	// selects a totally random preset from the list.
 	bodypreset FindRandomPreset(std::vector<bodypreset> list)
 	{
-		logger::trace("Attempting to pick a random preset.");
+		//logger::trace("Attempting to pick a random preset.");
 		int index = rand() % list.size();
 		return list[index];
 	}
@@ -41,8 +41,7 @@ namespace Presets
 		bool found = false;
 
 		auto container = Presets::PresetContainer::GetInstance();
-		logger::trace("The size of the container sublist is {}, and the size of the container masterlist is {}",
-			container->femaleRaceCategorySet.size(), container->femaleMasterSet.size());
+
 		std::vector<categorizedList>* racelist{ new std::vector<categorizedList> };
 		std::vector<categorizedList>* faclist{ new std::vector<categorizedList> };
 		std::vector<categorizedList>* charlist{ new std::vector<categorizedList> };
@@ -70,9 +69,9 @@ namespace Presets
 
 		if (racesex) {
 			auto raceName = a_actor->GetActorBase()->GetRace()->GetFormEditorID();
-			logger::trace("Race name is: {}", raceName);
+			//logger::trace("Race name is: {}", raceName);
 			for (categorizedList list : *racelist) {
-				logger::trace("list sex: {} list race: {}", list.sex, list.race);
+				//logger::trace("list sex: {} list race: {}", list.sex, list.race);
 				if (raceName == list.race) {
 					logger::trace("Race match for actor {} found!", a_actor->GetName());
 					found = true;
@@ -82,7 +81,7 @@ namespace Presets
 
 		// Needs po3's tweaks to work or will CTD
 		if (faction) {
-			logger::trace("Looking for a faction.");
+			//logger::trace("Looking for a faction.");
 			auto ranklist = a_actor->GetActorBase()->factions;
 
 			// this function is a headache so here's a walkthrough
@@ -93,7 +92,7 @@ namespace Presets
 					// look up the TESForm associated with the one in fac using the form
 					// editor ID string contained in fac.faction
 					auto target = RE::TESFaction::LookupByEditorID(fac.faction);
-					logger::trace("{} is what we're looking at in the faction loop", fac.faction);
+					//logger::trace("{} is what we're looking at in the faction loop", fac.faction);
 					// if the form matches the form of the faction we're looking at in the
 					// actors list, we have a match
 					if (rank.faction == target) {
@@ -105,9 +104,9 @@ namespace Presets
 		}
 
 		uint32_t actorID = a_actor->GetActorBase()->formID;
-		logger::trace("ActorID is {}", actorID);
+		//logger::trace("ActorID is {}", actorID);
 		for (categorizedList list : *charlist) {
-			logger::trace("FormID in the INI is {}", list.formID);
+			//logger::trace("FormID in the INI is {}", list.formID);
 			if (actorID == list.formID) {
 				logger::trace("{} found a matching config in the INI!", a_actor->GetName());
 				found = true;
@@ -238,7 +237,7 @@ namespace Presets
 			for (categorizedList fac : faclist) {
 				auto target = RE::TESFaction::LookupByEditorID(fac.faction);
 				if (rank.faction == target) {
-					logger::info("Faction body preset is being passed");
+					//logger::info("Faction body preset is being passed");
 					return fac.categorizedSet;
 				}
 			}
