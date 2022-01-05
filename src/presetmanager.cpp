@@ -1,6 +1,8 @@
 
+#include <Inverts.h>
 #include <morphman.h>
 #include <presetmanager.h>
+
 namespace Presets
 {
 	// today i learned about LNK2005.
@@ -308,7 +310,7 @@ namespace Presets
 		void ParsePreset(std::string filename, std::vector<bodypreset>* femalelist, std::vector<bodypreset>* malelist)
 		{
 			std::string* presetname{ new std::string };
-
+			std::string* bodytype{ new std::string };
 			std::vector<std::string>* presetgroups{ new std::vector<std::string> };
 
 			std::vector<slider>* sliderset{ new std::vector<slider> };
@@ -349,6 +351,17 @@ namespace Presets
 					logger::trace("Clothed preset found. Discarding.");
 					continue;
 				}
+				//for finding if we need to check for inverted sliders
+				bool UUNP = false;
+				*bodytype = preset_node->last_attribute()->value();
+
+				std::vector<std::string> unp{ "unp", "coco" };
+				std::vector<std::string> CBBE{ "CBBE" };
+				std::vector<std::string> HIMBO{ "HIMBO" };
+				if (bodytype->find("UNP") != -1) {
+					logger::trace("UUNP preset found. Now inverting sliders.");
+					UUNP = true;
+				}
 
 				// logger::trace("{} has entered the outer for loop", *presetname);
 				std::string* slidername{ new std::string };
@@ -368,6 +381,18 @@ namespace Presets
 					// convert the size to a morphable value (those are -1 to 1.)
 					*sizevalue = std::stoi(slider_node->first_attribute("value")->value()) / 100.0f;
 
+					//if we detect that a preset is UUNP based, invert the sliders.
+					bool inverted = false;
+					if (UUNP) {
+						for (std::string slider : DefaultSliders) {
+							if (*slidername == slider) {
+								logger::trace("UUNP backwards slider found! Inverting...");
+								*sizevalue = 1.0f - *sizevalue;
+								inverted = true;
+								break;
+							}
+						}
+					}
 					// if a pair is found, push it into the sliderset vector as a full struct.
 					if (*slidername == *previousslidername) {
 						// logger::trace("{} is a paired slider and is being pushed back",
@@ -379,10 +404,15 @@ namespace Presets
 					// full struct with null values where they belong.
 					else if (*slidername != *previousslidername && slider_node->next_sibling()) {
 						if (slider_node->next_sibling()->first_attribute()->value() != *slidername) {
+							//yet another inversion check for UUNP support.
+							float defaultvalue = 0;
+							if (inverted) {
+								defaultvalue -= 1.0f;
+							}
 							if (*size == "big") {
-								sliderset->push_back({ *sizevalue, 0, *slidername });
+								sliderset->push_back({ *sizevalue, defaultvalue, *slidername });
 							} else {
-								sliderset->push_back({ 0, *sizevalue, *slidername });
+								sliderset->push_back({ defaultvalue, *sizevalue, *slidername });
 							}
 						}
 					}
@@ -414,7 +444,7 @@ namespace Presets
 				// push the preset into the master list, then erase the sliderset to start
 				// again.
 				for (std::string item : *presetgroups) {
-					if (item._Equal("CBBE") || item._Equal("3BBB") || item._Equal("CBAdvanced")) {
+					if (item._Equal("CBBE") || item._Equal("3BBB") || item._Equal("CBAdvanced") || (item.find("UNP") != -1)) {
 						//logger::trace("Female preset found!");
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
