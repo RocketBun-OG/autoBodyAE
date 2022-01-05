@@ -84,6 +84,7 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	return v;
 }();
 
+//basically int main()
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	InitializeLog();
@@ -105,7 +106,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
 
 	Presets::Parsing::CheckMorphConfig();
-	logger::info("{} body presets were found in the faction list", presetcontainer->maleFactionCategorySet.size());
+	presetcontainer->maleFactionCategorySet.size();
 	auto papyrus = SKSE::GetPapyrusInterface();
 	if (!papyrus->Register(PapyrusBridging::BindAllFunctions)) {
 		logger::critical("Papyrus bridge failed!");

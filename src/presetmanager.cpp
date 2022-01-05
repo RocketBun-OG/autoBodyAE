@@ -8,6 +8,7 @@ namespace Presets
 	std::vector<slider> nullsliders;
 	std::vector<bodypreset> vecNotFound;
 
+	//followes a singleton format. You want access to the lists, use GetInstance().
 	PresetContainer* PresetContainer::GetInstance()
 	{
 		static PresetContainer instance;
@@ -36,12 +37,15 @@ namespace Presets
 		return list[index];
 	}
 
+	//master "can we do shit with this actor" function. Searches through the categories ingested with
+	//morphs.ini and returns true if there is a match found. Configurable to search just actorIDs, race, or faction -- or any of those in combination.
 	bool isInINI(RE::Actor* a_actor, bool racesex, bool faction)
 	{
 		bool found = false;
 
 		auto container = Presets::PresetContainer::GetInstance();
 
+		//must be pointers or shit goes wrong.
 		std::vector<categorizedList>* racelist{ new std::vector<categorizedList> };
 		std::vector<categorizedList>* faclist{ new std::vector<categorizedList> };
 		std::vector<categorizedList>* charlist{ new std::vector<categorizedList> };
@@ -67,6 +71,7 @@ namespace Presets
 			sex = "Male";
 		}
 
+		//for each category in the racelist, compare it against the actor's race. If there's a match, return true.
 		if (racesex) {
 			auto raceName = a_actor->GetActorBase()->GetRace()->GetFormEditorID();
 			//logger::trace("Race name is: {}", raceName);
@@ -103,6 +108,7 @@ namespace Presets
 			}
 		}
 
+		//for each formID in the actor preset list, check it against the actor's ID. If there's a match, return true.
 		uint32_t actorID = a_actor->GetActorBase()->formID;
 		//logger::trace("ActorID is {}", actorID);
 		for (categorizedList list : *charlist) {
@@ -120,7 +126,7 @@ namespace Presets
 	RE::BSEventNotifyControl HandleGeneration(RE::Actor* actor, bool genOverride)
 	{
 		RE::FormID playerID;
-
+		bool factionapplied;
 		auto presetcontainer = Presets::PresetContainer::GetInstance();
 		auto defaultobj = RE::BGSDefaultObjectManager::GetSingleton();
 		auto keywordNPC = defaultobj->GetObject<RE::BGSKeyword>(RE::DEFAULT_OBJECT::kKeywordNPC);
@@ -128,7 +134,8 @@ namespace Presets
 		if (actor->HasKeyword(keywordNPC)) {
 			auto morphman = Bodygen::Morphman::GetInstance();
 			logger::trace("NPC {} is being examined.", actor->GetName());
-
+			//runs the generation algorithm if they havent been generated, or if the mod has been commanded to override their previous generation.
+			//Only thing that overrides right now is the regen spell.
 			if (!morphman->IsGenned(actor) || genOverride) {
 				//logger::trace("We've entered the inner loop of handlegen.");
 				auto player = RE::PlayerCharacter::GetSingleton();
@@ -152,6 +159,7 @@ namespace Presets
 				else if (morphman->usingFaction && Presets::isInINI(actor, false, true)) {
 					//logger::trace("The faction is in the INI.");
 					morphman->ApplyPreset(actor, Presets::findFactionInINI(actor));
+					factionapplied = true;
 					// if faction priority is enabled, the control flow stops here if a
 					// faction body is found. Otherwise, itll check for race too and that
 					// preset will override any faction body that was applied.
@@ -173,13 +181,14 @@ namespace Presets
 				//if we don't know any info, we have to identify their sex.
 				//then we just apply from their default pool of presets.
 				auto sexint = actor->GetActorBase()->GetSex();
-
-				if (sexint == 1) {
-					morphman->ApplyPreset(actor, presetcontainer->femaleMasterSet);
-				} else {
-					morphman->ApplyPreset(actor, presetcontainer->maleMasterSet);
+				//guard to prevent actor from being regenerated if they've already had a faction body stuck on them.
+				if (!factionapplied) {
+					if (sexint == 1) {
+						morphman->ApplyPreset(actor, presetcontainer->femaleMasterSet);
+					} else {
+						morphman->ApplyPreset(actor, presetcontainer->maleMasterSet);
+					}
 				}
-
 			} else {
 				logger::trace("Actor has already had a preset applied. Skipping preset application.");
 			}
@@ -187,6 +196,7 @@ namespace Presets
 		return RE::BSEventNotifyControl::kContinue;
 	}
 
+	//locates and returns the preset list for a specific actor, if one exists.
 	std::vector<bodypreset> findActorInINI(RE::Actor* a_actor)
 	{
 		logger::trace("Entered findActorInINI");
@@ -248,6 +258,7 @@ namespace Presets
 		return vecNotFound;
 	}
 
+	//can you guess what this one does? :)
 	std::vector<bodypreset> findRaceSexInINI(RE::Actor* a_actor)
 	{
 		//sex check!
@@ -277,7 +288,8 @@ namespace Presets
 		vecNotFound[0] = { nullsliders, "" };
 		return vecNotFound;
 	}
-	// std::vector<bodypreset> findFactionInINI(RE::Actor *a_actor) {}
+
+	//everything to do with managing external files.
 	namespace Parsing
 	{
 		void PrintPreset(bodypreset preset)
@@ -757,6 +769,7 @@ namespace Presets
 			}
 		}
 
+		//set an arbitrary key in the INI.
 		void SetConfigKey(const char* sectionname, const char* keyname, const char* value)
 		{
 			CSimpleIniA configINI;
