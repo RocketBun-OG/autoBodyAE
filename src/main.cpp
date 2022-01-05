@@ -57,7 +57,7 @@ namespace
 			util::report_and_fail("Failed to find standard logging directory"sv);
 		}
 
-		*path /= "NOBODY.log"sv;
+		*path /= "autoBody.log"sv;
 		// basic file sink. Nothing special since I'm too stupid to get msvc to
 		// work.
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
@@ -73,7 +73,7 @@ namespace
 		log->flush_on(level);
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("NoBody v1: [%^%l%$] %v"s);
+		spdlog::set_pattern("autoBody v1: [%^%l%$] %v"s);
 	}
 }  // namespace
 
@@ -93,7 +93,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	InitializeLog();
 
-	logger::info("{} v{}"sv, "Nobody Plugin", Plugin::VERSION.string());
+	logger::info("{} v{}"sv, "autoBody Plugin", Plugin::VERSION.string());
 	SKSE::Init(a_skse);
 
 	auto message = SKSE::GetMessagingInterface();
@@ -105,8 +105,10 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	auto presetcontainer = Presets::PresetContainer::GetInstance();
 
-	Presets::Parsing::ParseAllInFolder(path, &presetcontainer->masterSet);
-	logger::info("{} body presets were loaded into the master list.", presetcontainer->masterSet.size());
+	Presets::Parsing::ParseAllInFolder(path, &presetcontainer->femaleMasterSet, &presetcontainer->maleMasterSet);
+	logger::info("{} body presets were loaded into the female master list.", presetcontainer->femaleMasterSet.size());
+	logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
+
 	Presets::Parsing::CheckMorphConfig();
 
 	auto papyrus = SKSE::GetPapyrusInterface();

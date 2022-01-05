@@ -64,7 +64,7 @@ namespace Bodygen
 	}
 
 	// checks to see if an actor has been generated already.
-	bool Morphman::IsGenned(RE::Actor* a_actor) { return morphInterface->GetMorph(a_actor, "nobody_processed", "NoBody") == 1.0f; }
+	bool Morphman::IsGenned(RE::Actor* a_actor) { return morphInterface->GetMorph(a_actor, "autoBody_processed", "autoBody") == 1.0f; }
 
 	// sticks a preset onto an NPC. This is the core function of the plugin, pretty
 	// much.
@@ -79,14 +79,14 @@ namespace Bodygen
 		Presets::completedbody readybody = InterpolateAllValues(preset, actorWeight, biasamount);
 
 		// finally, clear off any sliders we may have put on them.
-		morphInterface->ClearBodyMorphKeys(a_actor, "NoBody");
+		morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 		// prep complete
 
 		// apply the sliders to the NPC
-		ApplySliderSet(a_actor, readybody, "NoBody");
+		ApplySliderSet(a_actor, readybody, "autoBody");
 
 		// mark the actor as generated, so we don't fuck up and generate them again
-		morphInterface->SetMorph(a_actor, "nobody_processed", "NoBody", 1.0f);
+		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody", 1.0f);
 		logger::info("Preset [{}] was applied to {}", readybody.presetname, a_actor->GetName());
 		// store the actor's info just in case we need it later. Does not store it if
 		// we already have done so. completedcharacter finished{readybody, a_actor,
@@ -123,10 +123,10 @@ namespace Bodygen
 		auto modifiers = FinishClothing(a_actor);
 		if (unequip) {
 			logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
-			morphInterface->ClearBodyMorphKeys(a_actor, "NoBodyClothes");
+			morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 		} else {
 			logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
-			ApplySliderSet(a_actor, modifiers, "NoBodyClothes");
+			ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
 		}
 	}
 
@@ -134,7 +134,7 @@ namespace Bodygen
 	void Morphman::FlushActor(RE::Actor* a_actor)
 	{
 		// clear the morphs.
-		morphInterface->ClearBodyMorphKeys(a_actor, "NoBody");
+		morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 
 		morphInterface->ApplyBodyMorphs(a_actor, false);
 		morphInterface->UpdateModelWeight(a_actor, true);

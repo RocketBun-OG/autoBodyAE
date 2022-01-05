@@ -48,13 +48,18 @@ namespace Presets
 	class PresetContainer
 	{
 	public:
-		// master list of presets from nobody/presets
-		std::vector<bodypreset> masterSet;
+		// master lists of presets from autoBodyAE/presets
+		std::vector<bodypreset> femaleMasterSet;
+		std::vector<bodypreset> maleMasterSet;
 
-		// master list of all user-defined categories
-		std::vector<categorizedList> raceSexCategorySet;
-		std::vector<categorizedList> characterCategorySet;
-		std::vector<categorizedList> factionCategorySet;
+		// master lists of all user-defined categories
+		std::vector<categorizedList> femaleRaceCategorySet;
+		std::vector<categorizedList> femaleCharacterCategorySet;
+		std::vector<categorizedList> femaleFactionCategorySet;
+
+		std::vector<categorizedList> maleRaceCategorySet;
+		std::vector<categorizedList> maleCharacterCategorySet;
+		std::vector<categorizedList> maleFactionCategorySet;
 
 		PresetContainer() = default;
 
@@ -86,10 +91,10 @@ namespace Presets
 		void PrintPresetList(std::vector<bodypreset> setofsets);
 
 		// takes the list as a pointer
-		void ParsePreset(std::string filename, std::vector<bodypreset>* list);
+		void ParsePreset(std::string filename, std::vector<bodypreset>* femalelist, std::vector<bodypreset>* malelist);
 
 		// finds all the xmls in a target folder, and parses them into an xml vector.
-		void ParseAllInFolder(std::string path, std::vector<bodypreset>* list);
+		void ParseAllInFolder(std::string path, std::vector<bodypreset>* femalelist, std::vector<bodypreset>* malelist);
 
 		std::string CheckConfig();
 

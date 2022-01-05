@@ -12,7 +12,7 @@ namespace PapyrusBridging
 
 	auto GetActorPresetPool(RE::StaticFunctionTag*, RE::Actor* a_actor);
 
-	auto GetMasterPresetPool(RE::StaticFunctionTag*);
+	auto GetMasterPresetPool(RE::StaticFunctionTag*, bool female);
 
 	bool GetActorGenerated(RE::StaticFunctionTag*, RE::Actor* a_actor);
 
