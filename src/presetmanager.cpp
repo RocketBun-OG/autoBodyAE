@@ -128,7 +128,7 @@ namespace Presets
 	RE::BSEventNotifyControl HandleGeneration(RE::Actor* actor, bool genOverride)
 	{
 		RE::FormID playerID;
-		bool factionapplied;
+		bool factionapplied = false;
 		auto presetcontainer = Presets::PresetContainer::GetInstance();
 		auto defaultobj = RE::BGSDefaultObjectManager::GetSingleton();
 		auto keywordNPC = defaultobj->GetObject<RE::BGSKeyword>(RE::DEFAULT_OBJECT::kKeywordNPC);

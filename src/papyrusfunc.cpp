@@ -44,7 +44,9 @@ namespace PapyrusBridging
 	{
 		std::vector<RE::BSFixedString> output;
 		std::vector<Presets::bodypreset> master;
-		bool specific;
+		auto container = Presets::PresetContainer::GetInstance();
+
+		bool specific = false;
 		if (Presets::isInINI(a_actor)) {
 			auto actorbodylist = Presets::findActorInINI(a_actor);
 			for (Presets::bodypreset item : actorbodylist) { output.push_back(item.name); }
@@ -63,13 +65,17 @@ namespace PapyrusBridging
 
 		//if they're not found in the INI, default back to the master list of presets instead.
 		if (!specific) {
+			logger::trace("Actor was not found to match anything. Checking some other shit.");
 			if (a_actor->GetActorBase()->GetSex() == 1) {
-				master = Presets::PresetContainer::GetInstance()->femaleMasterSet;
+				master = container->femaleMasterSet;
 			} else {
-				master = Presets::PresetContainer::GetInstance()->maleMasterSet;
+				master = container->maleMasterSet;
 			}
 
-			for (Presets::bodypreset item : master) { output.push_back(item.name); }
+			for (Presets::bodypreset item : master) {
+				logger::trace("{} is being looked at for their presets", item.name);
+				output.push_back(item.name);
+			}
 		}
 		return output;
 	}
