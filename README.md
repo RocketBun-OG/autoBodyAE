@@ -6,6 +6,11 @@ A SKSE Plugin for distributing CBBE and HIMBO presets throughout the gameworld
 	* ``All|Female|NordRace``
 	* Uses EditorIDs just like Bodygen does. 
 * Reimplementation of [Obody's](https://www.nexusmods.com/skyrimspecialedition/mods/51084) ORefit algorithm! 
+## Differences from Bodygen
+* Addition of more extensive config options, including weight biasing, faction bodies, two different preset loading locations (just in your bodyslide SliderPresets, or specifically in the mod preset folder)
+* Automatically prevents ALL clothed presets from loading
+* Male support! 
+* Can use actor's weight settings or random weightings. 
 ## Development/Compile Requirements
 * [CMake](https://cmake.org/)
 	* Add this to your `PATH`
@@ -13,14 +18,10 @@ A SKSE Plugin for distributing CBBE and HIMBO presets throughout the gameworld
 	* Add the environment variable `Skyrim64Path` to point to the root installation of your game directory (the one containing `SkyrimSE.exe`).
 * [PowerShell](https://github.com/PowerShell/PowerShell/releases/latest)
 * [Vcpkg](https://github.com/microsoft/vcpkg)
-	* Add the environment variable `VCPKG_ROOT` with the value as the path to the folder containing vcpkg
+	* Add the environment variable `VCPKG_ROOT` with the value as the path to the folder containing vcpkg. For dependency management. 
 * [Visual Studio Community 2022](https://visualstudio.microsoft.com/)
-	* Desktop development with C++
+	* For the build tools. 
 
-## Register Visual Studio as a Generator
-* Open `x64 Native Tools Command Prompt`
-* Run `cmake`
-* Close the cmd window
 
 ## Building
 ```
@@ -33,7 +34,7 @@ cmake --build build --config Release
 ```
 
 ## Credit/thanks
-* [Sairion350](https://github.com/Sairion350) for their original work on OBody, which I referenced extensively and copied wholesale in a few places. 
+* [Sairion350](https://github.com/Sairion350) for their original work on OBody, which I referenced extensively and copied wholesale in a few places (specifically for event handling and ORefit). 
 * [Ryan-rsm-McKenzie](https://github.com/Ryan-rsm-McKenzie/) for their work on CommonLibSSE and their lovely example plugin, without which this project would not have been possible. 
 * My buddy Mike, for being my rubber duck. 
-*Scrab, for their assistance with a particular feature of the CommonLibSSE library
+* Scrab, for their assistance with a particular feature of the CommonLibSSE library

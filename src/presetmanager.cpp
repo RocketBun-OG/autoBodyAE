@@ -458,32 +458,44 @@ namespace Presets
 			}
 
 			bool failureswitch = false;
-
+			//features
 			int RaceToggle = -1;
 			int FactionToggle = -1;
 			int ClothesToggle = -1;
+
 			int LazyInstall = -1;
-			int WeightBias = -1;
+
+			//options
 			int FactionPriority = -1;
+			int WeightBias = -1;
+			int biasamount = -1;
+			int weightOptions = -1;
+			int weightSpecific = -1;
 
 			auto morf = Bodygen::Morphman::GetInstance();
-
+			logger::trace("reading off values...");
 			// read our toggles and pass them to morphman
 			RaceToggle = atoi(configINI.GetValue("Features", "bEnableRaceBodies"));
 			FactionToggle = atoi(configINI.GetValue("Features", "bEnableFactionBodies"));
 			ClothesToggle = atoi(configINI.GetValue("Features", "bEnableClothingRefit"));
+
 			LazyInstall = atoi(configINI.GetValue("Features", "bEnableLazyInstall"));
-			FactionPriority = atoi(configINI.GetValue("Features", "bFactionGenPriority"));
-			WeightBias = atoi(configINI.GetValue("Features", "bEnableWeightBias"));
+
+			FactionPriority = atoi(configINI.GetValue("Options", "bFactionGenPriority"));
+			WeightBias = atoi(configINI.GetValue("Options", "bEnableWeightBias"));
+			biasamount = atoi(configINI.GetValue("Options", "bWeightBiasAmount"));
+			weightOptions = atoi(configINI.GetValue("Options", "bWeightOptions"));
+			weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific"));
 
 			// if a toggle comes up as -1, it means it wasn't found in the INI.
 			// if this happens for any value, we throw a critical error.
-
+			logger::trace("Values read in!");
 			switch (RaceToggle) {
 			case -1:
 				failureswitch = true;
 				break;
 			default:
+				logger::trace("One");
 				morf->usingRace = RaceToggle;
 			}
 
@@ -492,6 +504,7 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
+				logger::trace("Two");
 				morf->usingFaction = FactionToggle;
 			}
 
@@ -500,6 +513,7 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
+				logger::trace("Three");
 				morf->usingClothes = ClothesToggle;
 			}
 
@@ -508,6 +522,7 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
+				logger::trace("Four");
 				morf->lazyInstall = LazyInstall;
 				// if the lazy install was toggled on, just read the presets from the
 				// calientetools master folder. Otherwise, read from our mod folder.
@@ -523,6 +538,7 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
+				logger::trace("Five");
 				morf->factionPriority = FactionPriority;
 			}
 
@@ -531,9 +547,29 @@ namespace Presets
 				failureswitch = true;
 				break;
 			case 1:
-				morf->biasamount = atof(configINI.GetValue("Features", "bWeightBiasAmount"));
+				morf->biasamount = atoi(configINI.GetValue("Options", "bWeightBiasAmount"));
 			default:
+				logger::trace("Six");
 				morf->enableWeightBias = WeightBias;
+			}
+
+			switch (weightOptions) {
+			case -1:
+				failureswitch = true;
+				break;
+
+			default:
+				logger::trace("Seven");
+				morf->weightOptions = weightOptions;
+			}
+
+			switch (weightSpecific) {
+			case -1:
+				failureswitch = true;
+				break;
+			default:
+				logger::trace("Eight.");
+				morf->weightSpecific = weightSpecific;
 			}
 
 			if (failureswitch)

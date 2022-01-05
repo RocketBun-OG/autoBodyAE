@@ -76,7 +76,7 @@ namespace Bodygen
 		// get the weight of the actor
 		auto actorWeight = GetWeight(a_actor);
 		// apply their weight to the preset + the offset defined in the INI
-		Presets::completedbody readybody = InterpolateAllValues(preset, actorWeight, biasamount);
+		Presets::completedbody readybody = InterpolateAllValues(preset, actorWeight);
 
 		// finally, clear off any sliders we may have put on them.
 		morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");

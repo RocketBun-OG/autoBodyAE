@@ -23,17 +23,22 @@ namespace Bodygen
 	class Morphman
 	{
 	public:
+		//features
 		bool usingRace;
 		bool usingFaction;
 		bool usingClothes;
-		bool factionPriority;
 
 		bool lazyInstall;
 
-		bool clothingInit;
+		//options
+		bool factionPriority;
 		bool enableWeightBias;
-		float biasamount{ 0 };
+		int biasamount{ 0 };
+		int weightOptions{ 0 };
+		int weightSpecific{ 0 };
 
+		//other
+		bool clothingInit;
 		std::vector<completedcharacter> actorList;
 
 		SKEE::IBodyMorphInterface* morphInterface;

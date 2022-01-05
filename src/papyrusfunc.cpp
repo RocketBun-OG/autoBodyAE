@@ -15,7 +15,6 @@ namespace PapyrusBridging
 	void ApplyPresetByName(RE::StaticFunctionTag*, RE::Actor* a_actor, std::string presetname)
 	{
 		// logger::trace("ApplyPresetByName was called from a script!");
-		auto container = Presets::PresetContainer::GetInstance();
 		auto morphman = Bodygen::Morphman::GetInstance();
 		std::vector<Presets::bodypreset> list;
 		auto sexint = a_actor->GetActorBase()->GetSex();
@@ -30,7 +29,7 @@ namespace PapyrusBridging
 			// logger::trace("We're looking at {} in the loop right now", item.name);
 			if (item.name == presetname) {
 				// logger::trace("Match found!");
-				Presets::completedbody readybody = InterpolateAllValues(item, morphman->GetWeight(a_actor), 0);
+				Presets::completedbody readybody = InterpolateAllValues(item, morphman->GetWeight(a_actor));
 				// logger::trace("{} is the size of the body we just made",
 				// readybody.nodelist.size());
 				morphman->ApplySliderSet(a_actor, readybody, "autoBody");

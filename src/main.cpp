@@ -95,12 +95,12 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	logger::info("{} v{}"sv, "autoBody Plugin", Plugin::VERSION.string());
 	SKSE::Init(a_skse);
-
+	logger::trace("SKSE initialized.");
 	auto message = SKSE::GetMessagingInterface();
 	if (!message->RegisterListener(MessageHandler)) {
 		return false;
 	}
-
+	logger::trace("checking config.");
 	std::string path = Presets::Parsing::CheckConfig();
 
 	auto presetcontainer = Presets::PresetContainer::GetInstance();
