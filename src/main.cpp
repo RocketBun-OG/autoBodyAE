@@ -19,12 +19,10 @@ namespace
 		switch (a_message->type) {
 			// we set this messaging interface up so we can talk to SKEE
 		case SKSE::MessagingInterface::kPostLoad:
-
 			SKEE::InterfaceExchangeMessage message;
 			auto SKSEinterface = SKSE::GetMessagingInterface();
 			SKSEinterface->Dispatch(
-				SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message,
-				sizeof(SKEE::InterfaceExchangeMessage*), "skee");
+				SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*), "skee");
 			// interface map contained within the message allows us to find the morph
 			// interface. Like a treasure map.
 			if (!message.interfaceMap) {
@@ -33,8 +31,7 @@ namespace
 			}
 
 			// now we get the morph interface.
-			auto morphInterface = static_cast<SKEE::IBodyMorphInterface*>(
-				message.interfaceMap->QueryInterface("BodyMorph"));
+			auto morphInterface = static_cast<SKEE::IBodyMorphInterface*>(message.interfaceMap->QueryInterface("BodyMorph"));
 			if (!morphInterface) {
 				logger::critical("Couldn't acquire morph interface!");
 				return;
@@ -44,9 +41,7 @@ namespace
 			// now we pass the interface to our dearest friend morf.
 			auto morf = Bodygen::Morphman::GetInstance();
 			if (!morf->GetMorphInterface(morphInterface)) {
-				logger::critical(
-					"BodyMorphInterface failed to pass to morphman! The mod "
-					"will not work.");
+				logger::critical("BodyMorphInterface failed to pass to morphman! The mod will not work.");
 			}
 
 			Event::RegisterEvents();
@@ -65,8 +60,7 @@ namespace
 		*path /= "NOBODY.log"sv;
 		// basic file sink. Nothing special since I'm too stupid to get msvc to
 		// work.
-		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-			path->string(), true);
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
 #ifndef NDEBUG
 		const auto level = spdlog::level::trace;
@@ -95,8 +89,7 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	return v;
 }();
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(
-	const SKSE::LoadInterface* a_skse)
+extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	InitializeLog();
 
@@ -113,8 +106,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(
 	auto presetcontainer = Presets::PresetContainer::GetInstance();
 
 	Presets::Parsing::ParseAllInFolder(path, &presetcontainer->masterSet);
-	logger::info("{} body presets were loaded into the master list.",
-		presetcontainer->masterSet.size());
+	logger::info("{} body presets were loaded into the master list.", presetcontainer->masterSet.size());
 	Presets::Parsing::CheckMorphConfig();
 
 	auto papyrus = SKSE::GetPapyrusInterface();
@@ -122,9 +114,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(
 		logger::critical("Papyrus bridge failed!");
 		return false;
 	} else {
-		logger::trace(
-			"Papyrus bridge succeeded. Native functions should now be "
-			"available.");
+		logger::trace("Papyrus bridge succeeded. Native functions should now be available.");
 	}
 
 	return true;

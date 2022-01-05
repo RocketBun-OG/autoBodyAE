@@ -1,72 +1,73 @@
 #pragma once
 #include "maffs.h"
 
-namespace Bodygen {
+namespace Bodygen
+{
+	// these are stored in actorList.Currently unused.
+	struct completedcharacter
+	{
+		Presets::completedbody body;
+		RE::Actor* completedactor;
+		RE::FormID referenceID;
+		std::string name = "";
+		float weight = 1.0f;
 
-  // these are stored in actorList.Currently unused.
-  struct completedcharacter {
+		// for comparing characters in actorList
+		bool operator==(const completedcharacter& c) { return (c.name._Equal(name)); }
+	};
+	// for bEnableClothingRefit
+	extern std::vector<Presets::slider> clothingsliders;
+	extern Presets::bodypreset clothingUnprocessed;
+	extern Presets::completedbody clothingProcessed;
 
-    Presets::completedbody body;
-    RE::Actor             *completedactor;
-    RE::FormID             referenceID;
-    std::string            name   = "";
-    float                  weight = 1.0f;
+	class Morphman
+	{
+	public:
+		bool usingRace;
+		bool usingFaction;
+		bool usingClothes;
+		bool factionPriority;
 
-    // for comparing characters in actorList
-    bool operator==(const completedcharacter &c) { return (c.name._Equal(name)); }
-  };
-  // for bEnableClothingRefit
-  extern std::vector<Presets::slider> clothingsliders;
-  extern Presets::bodypreset          clothingUnprocessed;
-  extern Presets::completedbody       clothingProcessed;
+		bool lazyInstall;
 
-  class Morphman {
-  public:
-    bool usingRace;
-    bool usingFaction;
-    bool usingClothes;
-    bool factionPriority;
+		bool clothingInit;
+		bool enableWeightBias;
+		float biasamount{ 0 };
 
-    bool lazyInstall;
+		std::vector<completedcharacter> actorList;
 
-    bool  clothingInit;
-    bool  enableWeightBias;
-    float biasamount{0};
+		SKEE::IBodyMorphInterface* morphInterface;
 
-    std::vector<completedcharacter> actorList;
+		Morphman() = default;
 
-    SKEE::IBodyMorphInterface *morphInterface;
+		static Morphman* GetInstance();
 
-    Morphman() = default;
+		void initClothingSliders();
 
-    static Morphman *GetInstance();
+		Presets::completedbody FinishClothing(RE::Actor* a_actor);
 
-    void initClothingSliders();
+		bool GetMorphInterface(SKEE::IBodyMorphInterface* a_morphInterface);
 
-    Presets::completedbody FinishClothing(RE::Actor *a_actor);
+		// checks to see if an actor has been generated already.
+		bool IsGenned(RE::Actor* a_actor);
 
-    bool GetMorphInterface(SKEE::IBodyMorphInterface *a_morphInterface);
+		// sticks a RANDOM preset onto an NPC. This is the core function of the plugin, pretty much.
+		void ApplyPreset(RE::Actor* a_actor, std::vector<Presets::bodypreset> list);
 
-    // checks to see if an actor has been generated already.
-    bool IsGenned(RE::Actor *a_actor);
+		// apply a flattened slider (i.e. a single value and a name, i.e. what the morph interface takes in), plus a morph key
+		void ApplySlider(RE::Actor* a_actor, Presets::flattenedslider slider, const char* key);
 
-    // sticks a RANDOM preset onto an NPC. This is the core function of the plugin, pretty much.
-    void ApplyPreset(RE::Actor *a_actor, std::vector<Presets::bodypreset> list);
+		// apply an entire sliderset to a person.
+		void ApplySliderSet(RE::Actor* a_actor, Presets::completedbody body, const char* key);
 
-    // apply a flattened slider (i.e. a single value and a name, i.e. what the morph interface takes in), plus a morph key
-    void ApplySlider(RE::Actor *a_actor, Presets::flattenedslider slider, const char *key);
+		// apply or remove clothing sliders from an actor.
+		void ProcessClothing(RE::Actor* a_actor, bool unequip);
 
-    // apply an entire sliderset to a person.
-    void ApplySliderSet(RE::Actor *a_actor, Presets::completedbody body, const char *key);
+		// clears all changes we have made to an actor
+		void FlushActor(RE::Actor* a_actor);
 
-    // apply or remove clothing sliders from an actor.
-    void ProcessClothing(RE::Actor *a_actor, bool unequip);
+		// how fat are they? lul
+		float GetWeight(RE::Actor* a_actor);
+	};
 
-    // clears all changes we have made to an actor
-    void FlushActor(RE::Actor *a_actor);
-
-    // how fat are they? lul
-    float GetWeight(RE::Actor *a_actor);
-  };
-
-}; // namespace Bodygen
+};  // namespace Bodygen
