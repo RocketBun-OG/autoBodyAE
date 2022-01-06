@@ -347,7 +347,10 @@ namespace Presets
 				//logger::trace("preset name being loaded is {}", *presetname);
 				// discard clothed presets.
 				if (presetname->find("Cloth") != -1 || presetname->find("cloth") != -1 || presetname->find("Outfit") != -1 ||
-					presetname->find("outfit") != -1) {
+					presetname->find("outfit") != -1 || presetname->find("NeverNude") != -1 || presetname->find("Bikini") != -1 ||
+					presetname->find("Feet") != -1 || presetname->find("Hands") != -1 || presetname->find("OUTFIT") != -1 ||
+					presetname->find("push") != -1 || presetname->find("Armor") != -1 || presetname->find("Bra") != -1 ||
+					presetname->find("Push") != -1) {
 					logger::trace("Clothed preset found. Discarding.");
 					continue;
 				}
