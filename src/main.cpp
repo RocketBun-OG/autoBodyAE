@@ -62,7 +62,7 @@ namespace
 		// work.
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-		const auto level = spdlog::level::info;
+		const auto level = spdlog::level::trace;
 
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(level);
@@ -107,7 +107,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
 
 	Presets::Parsing::CheckMorphConfig();
-
+	auto morf = Bodygen::Morphman::GetInstance();
+	morf->initClothingSliders();
+	//logger::trace("Clothingsliders is {} elements long in main", presetcontainer->clothingsliders.size());
 	auto papyrus = SKSE::GetPapyrusInterface();
 	if (!papyrus->Register(PapyrusBridging::BindAllFunctions)) {
 		logger::critical("Papyrus bridge failed!");

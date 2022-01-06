@@ -2,11 +2,6 @@
 
 namespace Bodygen
 {
-	// for bEnableClothingRefit
-	std::vector<Presets::slider> clothingsliders;
-	Presets::bodypreset clothingUnprocessed{ clothingsliders, "Clothing" };
-	Presets::completedbody clothingProcessed;
-
 	Morphman* Morphman::GetInstance()
 	{
 		static Morphman instance;
@@ -15,47 +10,59 @@ namespace Bodygen
 
 	void Morphman::initClothingSliders()
 	{
+		auto container = Presets::PresetContainer::GetInstance();
+		std::vector<Presets::slider>* clothingsliders;
+		clothingsliders = &container->clothingsliders;
 		// booba
-		clothingsliders.push_back({ 0.0f, 0.0f, "BreastSideShape" });
-		clothingsliders.push_back({ 0.0f, 0.0f, "BreastUnderDepth" });
-		clothingsliders.push_back({ 1.0f, 1.0f, "BreastCleavage" });
-		clothingsliders.push_back({ -0.1f, -0.05f, "BreastGravity2" });
-		clothingsliders.push_back({ -0.2f, -0.35f, "BreastTopSlope" });
-		clothingsliders.push_back({ 0.3f, 0.35f, "BreastsTogether" });
-		clothingsliders.push_back({ -0.05f, -0.05f, "Breasts" });
-		clothingsliders.push_back({ 0.15f, 0.15f, "BreastHeigh" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "BreastSideShape" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "BreastUnderDepth" });
+		clothingsliders->push_back({ 1.0f, 1.0f, "BreastCleavage" });
+		clothingsliders->push_back({ -0.1f, -0.05f, "BreastGravity2" });
+		clothingsliders->push_back({ -0.2f, -0.35f, "BreastTopSlope" });
+		clothingsliders->push_back({ 0.3f, 0.35f, "BreastsTogether" });
+		clothingsliders->push_back({ -0.05f, -0.05f, "Breasts" });
+		clothingsliders->push_back({ 0.15f, 0.15f, "BreastHeigh" });
 
 		// butt
-		clothingsliders.push_back({ 0.0f, 0.0f, "ButtDimples" });
-		clothingsliders.push_back({ 0.0f, 0.0f, "ButtUnderFold" });
-		clothingsliders.push_back({ -0.05f, -0.05f, "AppleCheeks" });
-		clothingsliders.push_back({ -0.05f, -0.05f, "Butt" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "ButtDimples" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "ButtUnderFold" });
+		clothingsliders->push_back({ -0.05f, -0.05f, "AppleCheeks" });
+		clothingsliders->push_back({ -0.05f, -0.05f, "Butt" });
 
 		// torso
-		clothingsliders.push_back({ 0.0f, 0.0f, "Clavicle_v2" });
-		clothingsliders.push_back({ 1.0f, 1.0f, "NavelEven" });
-		clothingsliders.push_back({ 0.0f, 0.0f, "HipCarved" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "Clavicle_v2" });
+		clothingsliders->push_back({ 1.0f, 1.0f, "NavelEven" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "HipCarved" });
 
 		// nipples
-		clothingsliders.push_back({ 0.0f, 0.0f, "NippleDip" });
-		clothingsliders.push_back({ 0.0f, 0.0f, "NippleTip" });
-		clothingsliders.push_back({ 0.0f, 0.0f, "NipplePuffy_v2" });
-		clothingsliders.push_back({ -0.3f, -0.3f, "AreolaSize" });
-		clothingsliders.push_back({ 1.0f, 1.0f, "NipBGone" });
-		clothingsliders.push_back({ -0.75, -0.75, "NippleManga" });
-		clothingsliders.push_back({ 0.05f, 0.08f, "NippleDistance" });
-		clothingsliders.push_back({ 0.0f, -0.1f, "NippleDown" });
-		clothingsliders.push_back({ -0.25f, -0.25f, "NipplePerkManga" });
-		clothingsliders.push_back({ 0.0f, 0.0f, "NipplePerkiness" });
-
-		clothingInit = true;
+		clothingsliders->push_back({ 0.0f, 0.0f, "NippleDip" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "NippleTip" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "NipplePuffy_v2" });
+		clothingsliders->push_back({ -0.3f, -0.3f, "AreolaSize" });
+		clothingsliders->push_back({ 1.0f, 1.0f, "NipBGone" });
+		clothingsliders->push_back({ -0.75, -0.75, "NippleManga" });
+		clothingsliders->push_back({ 0.05f, 0.08f, "NippleDistance" });
+		clothingsliders->push_back({ 0.0f, -0.1f, "NippleDown" });
+		clothingsliders->push_back({ -0.25f, -0.25f, "NipplePerkManga" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "NipplePerkiness" });
+		//logger::trace("clothingsliders is {} elements long right here", clothingsliders->size());
+		container->clothingUnprocessed.sliderlist = *clothingsliders;
 	}
 
 	Presets::completedbody Morphman::FinishClothing(RE::Actor* a_actor)
 	{
 		auto weight = GetWeight(a_actor);
-		auto clothingmods = InterpolateAllValues(clothingUnprocessed, weight);
-		return clothingmods;
+		auto container = Presets::PresetContainer::GetInstance();
+		//jank
+		Presets::bodypreset* clothingUnprocessed{ new Presets::bodypreset };
+		Presets::completedbody* clothingmods{ new Presets::completedbody };
+
+		clothingUnprocessed = &container->clothingUnprocessed;
+
+		//logger::trace("We've acquired an unprocessed list of {} elements", clothingUnprocessed->sliderlist.size());
+		*clothingmods = InterpolateAllValues(*clothingUnprocessed, weight);
+		//logger::trace("The clothing list is {} elements long", clothingmods->nodelist.size());
+		return *clothingmods;
 	}
 
 	bool Morphman::GetMorphInterface(SKEE::IBodyMorphInterface* a_morphInterface)
@@ -129,6 +136,7 @@ namespace Bodygen
 		auto sexint = a_actor->GetActorBase()->GetSex();
 		if (sexint == 1) {
 			auto modifiers = FinishClothing(a_actor);
+			logger::trace("Modifiers is {} big", modifiers.nodelist.size());
 			if (unequip) {
 				//logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
