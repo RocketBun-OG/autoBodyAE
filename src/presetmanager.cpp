@@ -358,9 +358,6 @@ namespace Presets
 				bool UUNP = false;
 				*bodytype = preset_node->last_attribute()->value();
 
-				std::vector<std::string> unp{ "unp", "coco" };
-				std::vector<std::string> CBBE{ "CBBE" };
-				std::vector<std::string> HIMBO{ "HIMBO" };
 				if (bodytype->find("UNP") != -1) {
 					logger::trace("UUNP preset found. Now inverting sliders.");
 					UUNP = true;

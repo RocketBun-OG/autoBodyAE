@@ -32,6 +32,7 @@ namespace PapyrusBridging
 			if (item.name == presetname) {
 				// logger::trace("Match found!");
 				Presets::completedbody readybody = InterpolateAllValues(item, morphman->GetWeight(a_actor));
+				morphman->morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 				// logger::trace("{} is the size of the body we just made",
 				// readybody.nodelist.size());
 				morphman->ApplySliderSet(a_actor, readybody, "autoBody");
