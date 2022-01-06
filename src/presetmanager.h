@@ -61,6 +61,9 @@ namespace Presets
 		std::vector<categorizedList> maleCharacterCategorySet;
 		std::vector<categorizedList> maleFactionCategorySet;
 
+		std::vector<Presets::slider> clothingsliders;
+		Presets::bodypreset clothingUnprocessed{ clothingsliders, "Clothing" };
+
 		PresetContainer() = default;
 
 		// just like morphman, this uses a singleton pattern.
