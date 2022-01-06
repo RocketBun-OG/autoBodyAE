@@ -21,7 +21,7 @@ namespace Bodygen
 		clothingsliders->push_back({ -0.2f, -0.35f, "BreastTopSlope" });
 		clothingsliders->push_back({ 0.3f, 0.35f, "BreastsTogether" });
 		clothingsliders->push_back({ -0.05f, -0.05f, "Breasts" });
-		clothingsliders->push_back({ 0.15f, 0.15f, "BreastHeigh" });
+		clothingsliders->push_back({ 0.15f, 0.15f, "BreastHeight" });
 
 		// butt
 		clothingsliders->push_back({ 0.0f, 0.0f, "ButtDimples" });
@@ -39,11 +39,11 @@ namespace Bodygen
 		clothingsliders->push_back({ 0.0f, 0.0f, "NippleTip" });
 		clothingsliders->push_back({ 0.0f, 0.0f, "NipplePuffy_v2" });
 		clothingsliders->push_back({ -0.3f, -0.3f, "AreolaSize" });
-		clothingsliders->push_back({ 1.0f, 1.0f, "NipBGone" });
-		clothingsliders->push_back({ -0.75, -0.75, "NippleManga" });
+		//clothingsliders->push_back({ 1.0f, 1.0f, "NipBGone" });
+		//clothingsliders->push_back({ -0.75, -0.75, "NippleManga" });
 		clothingsliders->push_back({ 0.05f, 0.08f, "NippleDistance" });
 		clothingsliders->push_back({ 0.0f, -0.1f, "NippleDown" });
-		clothingsliders->push_back({ -0.25f, -0.25f, "NipplePerkManga" });
+		//clothingsliders->push_back({ -0.25f, -0.25f, "NipplePerkManga" });
 		clothingsliders->push_back({ 0.0f, 0.0f, "NipplePerkiness" });
 		//logger::trace("clothingsliders is {} elements long right here", clothingsliders->size());
 		container->clothingUnprocessed.sliderlist = *clothingsliders;
@@ -53,6 +53,7 @@ namespace Bodygen
 	{
 		auto weight = GetWeight(a_actor);
 		auto container = Presets::PresetContainer::GetInstance();
+		auto morphman = Bodygen::Morphman::GetInstance();
 		//jank
 		Presets::bodypreset* clothingUnprocessed{ new Presets::bodypreset };
 		Presets::completedbody* clothingmods{ new Presets::completedbody };
@@ -62,6 +63,13 @@ namespace Bodygen
 		//logger::trace("We've acquired an unprocessed list of {} elements", clothingUnprocessed->sliderlist.size());
 		*clothingmods = InterpolateAllValues(*clothingUnprocessed, weight);
 		//logger::trace("The clothing list is {} elements long", clothingmods->nodelist.size());
+		for (int i = 0; i < clothingmods->nodelist.size(); ++i) {
+			float precalibration = clothingmods->nodelist[i].value;
+			float tuningvalue = morphman->morphInterface->GetMorph(a_actor, clothingmods->nodelist[i].name.c_str(), "autoBody");
+			logger::trace("The precalibration value is {} and the value to tune down by is {}", precalibration, tuningvalue);
+			clothingmods->nodelist[i].value = precalibration - tuningvalue;
+		}
+
 		return *clothingmods;
 	}
 
@@ -138,10 +146,10 @@ namespace Bodygen
 			auto modifiers = FinishClothing(a_actor);
 			logger::trace("Modifiers is {} big", modifiers.nodelist.size());
 			if (unequip) {
-				//logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
+				logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 			} else {
-				//logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
+				logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
 				ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
 			}
 		}
