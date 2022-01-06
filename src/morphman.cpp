@@ -70,6 +70,12 @@ namespace Bodygen
 	// much.
 	void Morphman::ApplyPreset(RE::Actor* a_actor, std::vector<Presets::bodypreset> list)
 	{
+		//ensure that the list has at least one item to avoid divide by zero errors.
+		if (list.size() == 0) {
+			logger::trace("There are no presets in this list! We can't apply one!");
+			morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody", 1.0f);
+			return;
+		}
 		// select a random preset from the stack
 		auto preset = Presets::FindRandomPreset(list);
 
