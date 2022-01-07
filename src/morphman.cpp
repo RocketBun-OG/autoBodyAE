@@ -39,7 +39,7 @@ namespace Bodygen
 		clothingsliders->push_back({ 0.0f, 0.0f, "NippleTip" });
 		clothingsliders->push_back({ 0.0f, 0.0f, "NipplePuffy_v2" });
 		clothingsliders->push_back({ -0.3f, -0.3f, "AreolaSize" });
-		//clothingsliders->push_back({ 1.0f, 1.0f, "NipBGone" });
+		clothingsliders->push_back({ 0.2f, 0.2f, "NipBGone" });
 		//clothingsliders->push_back({ -0.75, -0.75, "NippleManga" });
 		clothingsliders->push_back({ 0.05f, 0.08f, "NippleDistance" });
 		clothingsliders->push_back({ 0.0f, -0.1f, "NippleDown" });

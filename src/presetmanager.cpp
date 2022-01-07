@@ -19,7 +19,7 @@ namespace Presets
 
 	bodypreset FindPresetByName(std::vector<bodypreset> searchable, std::string name)
 	{
-		logger::trace("the searchable set has {} elements in it, and its first element is {}", searchable.size(), searchable.begin()[0].name);
+		logger::trace("the searchable set has {} elements in it, and its sixth element is {}", searchable.size(), searchable.begin()[5].name);
 		for (bodypreset searchitem : searchable) {
 			//logger::trace("the items name is {} and the search target is {}", searchitem.name, name);
 			if (searchitem.name == name) {
@@ -307,8 +307,6 @@ namespace Presets
 			std::string* bodytype{ new std::string };
 			std::vector<std::string>* presetgroups{ new std::vector<std::string> };
 
-			std::vector<slider>* sliderset{ new std::vector<slider> };
-
 			xml_document<>* preset{ new xml_document };
 			xml_node<>* root_node = NULL;
 
@@ -328,7 +326,9 @@ namespace Presets
 
 			// parse!
 			// for each preset, grab its name and go through the sliders.
-			for (xml_node<>* preset_node = root_node->first_node("Preset"); preset_node; preset_node = preset_node->next_sibling()) {
+			for (xml_node<>* preset_node = root_node->first_node("Preset"); preset_node; preset_node = preset_node->next_sibling("Preset")) {
+				std::vector<slider>* sliderset{ new std::vector<slider> };
+
 				// we need this for the set of sets, to identify them.
 				*presetname = preset_node->first_attribute()->value();
 
@@ -338,7 +338,7 @@ namespace Presets
 					presetgroups->push_back(cat_node->first_attribute()->value());
 				}
 
-				//logger::trace("preset name being loaded is {}", *presetname);
+				logger::trace("preset name being loaded is {}", *presetname);
 				// discard clothed presets.
 				if (presetname->find("Cloth") != -1 || presetname->find("cloth") != -1 || presetname->find("Outfit") != -1 ||
 					presetname->find("outfit") != -1 || presetname->find("NeverNude") != -1 || presetname->find("Bikini") != -1 ||
@@ -357,24 +357,26 @@ namespace Presets
 					UUNP = true;
 				}
 
-				// logger::trace("{} has entered the outer for loop", *presetname);
+				logger::trace("{} has entered the outer for loop", *presetname);
 				std::string* slidername{ new std::string };
 				std::string* previousslidername{ new std::string("") };
 
 				std::string* size{ new std::string("") };
 				std::string* lastSize{ new std::string("") };
-
+				float defaultvalue = 0;
 				float* sizevalue{ new float{ 0 } };
 				float* lastsizevalue{ new float{ 0 } };
 				// go through the sliders
-				for (xml_node<>* slider_node = preset_node->first_node("SetSlider"); slider_node; slider_node = slider_node->next_sibling()) {
+				for (xml_node<>* slider_node = preset_node->first_node("SetSlider"); slider_node;
+					 slider_node = slider_node->next_sibling("SetSlider")) {
 					// store the current values of this node
 					*slidername = slider_node->first_attribute()->value();
 					*size = slider_node->first_attribute("size")->value();
-
+					auto printable = *slidername;
+					logger::trace("The slider being looked at is {} and it is {}", printable, *size);
 					// convert the size to a morphable value (those are -1 to 1.)
 					*sizevalue = std::stoi(slider_node->first_attribute("value")->value()) / 100.0f;
-
+					logger::trace("The converted value of that slider is {}", *sizevalue);
 					//if we detect that a preset is UUNP based, invert the sliders.
 					bool inverted = false;
 					if (UUNP) {
@@ -389,31 +391,36 @@ namespace Presets
 					}
 					// if a pair is found, push it into the sliderset vector as a full struct.
 					if (*slidername == *previousslidername) {
-						// logger::trace("{} is a paired slider and is being pushed back",
-						// *slidername);
+						logger::trace("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername,
+							*lastsizevalue, *sizevalue);
+
 						sliderset->push_back({ *lastsizevalue, *sizevalue, *slidername });
 					}
 
 					// if a pair is not found, evaluate which half it is and then push it as a
 					// full struct with null values where they belong.
-					else if (*slidername != *previousslidername && slider_node->next_sibling()) {
-						if (slider_node->next_sibling()->first_attribute()->value() != *slidername) {
-							//yet another inversion check for UUNP support.
-							float defaultvalue = 0;
+					else if (*slidername != *previousslidername) {
+						if (!slider_node->next_sibling() || slider_node->next_sibling()->first_attribute()->value() != *slidername) {
+							logger::trace("slider {} is a singlet", *slidername);
 							if (inverted) {
 								defaultvalue -= 1.0f;
 							}
+
 							if (*size == "big") {
+								logger::trace("It's a biggun");
 								sliderset->push_back({ *sizevalue, defaultvalue, *slidername });
 							} else {
+								logger::trace("It's a smallun;");
 								sliderset->push_back({ defaultvalue, *sizevalue, *slidername });
 							}
+							//yet another inversion check for UUNP support.
 						}
 					}
 					// push the values back for the next
 					*previousslidername = *slidername;
 					*lastSize = *size;
 					*lastsizevalue = *sizevalue;
+					//logger::trace("At the end of pushback we have a slider name of {} and a value of {}", *slidername, *sizevalue);
 					// std::cout << " values: " << slidername << ",  " << size << ",  " <<
 					// sizevalue << std::endl;
 				}
@@ -439,7 +446,8 @@ namespace Presets
 				// again.
 				for (std::string item : *presetgroups) {
 					if (item._Equal("CBBE") || item._Equal("3BBB") || item._Equal("CBAdvanced") || (item.find("UNP") != -1)) {
-						//logger::trace("Female preset found!");
+						logger::trace("Female preset found!");
+						PrintPreset(bodypreset{ *sliderset, *presetname });
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
 					} else if (item._Equal("HIMBO")) {
@@ -448,12 +456,12 @@ namespace Presets
 						break;
 					}
 				}
+				delete sliderset;
 			}
 			//  clean up memory
 			delete presetgroups;
 			presetgroups = nullptr;
-			delete sliderset;
-			sliderset = nullptr;
+
 			return;
 		}
 

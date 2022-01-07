@@ -64,6 +64,7 @@ namespace
 
 				Presets::Parsing::CheckMorphConfig();
 				morf->initClothingSliders();
+				Presets::Parsing::PrintPreset(Presets::FindPresetByName(presetcontainer->femaleMasterSet, "CBBE Slim"));
 				return;
 			}
 		}
@@ -83,7 +84,7 @@ namespace
 		// work.
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-		const auto level = spdlog::level::info;
+		const auto level = spdlog::level::trace;
 
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(level);
