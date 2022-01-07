@@ -19,11 +19,11 @@ namespace Presets
 
 	bodypreset FindPresetByName(std::vector<bodypreset> searchable, std::string name)
 	{
-		//logger::trace("the searchable set has {} elements in it, and its first element is {}", searchable.size(), searchable.begin()[0].name);
+		logger::trace("the searchable set has {} elements in it, and its first element is {}", searchable.size(), searchable.begin()[0].name);
 		for (bodypreset searchitem : searchable) {
 			//logger::trace("the items name is {} and the search target is {}", searchitem.name, name);
 			if (searchitem.name == name) {
-				//logger::trace("{} was found!", searchitem.name);
+				logger::trace("{} was found!", searchitem.name);
 				return searchitem;
 			}
 		}
@@ -54,13 +54,14 @@ namespace Presets
 
 		auto sexint = a_actor->GetActorBase()->GetSex();
 
+		charlist = &container->characterCategorySet;
+
 		//first we check to see if the actor is male or female, to search through the right lists.
 		std::string sex;
 		if (sexint == 1) {
 			//logger::trace("Sex is female.");
 			racelist = &container->femaleRaceCategorySet;
 			faclist = &container->femaleFactionCategorySet;
-			charlist = &container->femaleCharacterCategorySet;
 
 			sex = "Female";
 
@@ -68,7 +69,6 @@ namespace Presets
 			//logger::trace("Sex is male");
 			racelist = &container->maleRaceCategorySet;
 			faclist = &container->maleFactionCategorySet;
-			charlist = &container->maleCharacterCategorySet;
 
 			sex = "Male";
 		}
@@ -204,14 +204,8 @@ namespace Presets
 		logger::trace("Entered findActorInINI");
 		uint32_t actorID = a_actor->GetActorBase()->GetFormID();
 
-		//sex check!
-		auto sexint = a_actor->GetActorBase()->GetSex();
-		std::vector<Presets::categorizedList> charlist;
-		if (sexint == 1) {
-			charlist = Presets::PresetContainer::GetInstance()->femaleCharacterCategorySet;
-		} else {
-			charlist = Presets::PresetContainer::GetInstance()->maleCharacterCategorySet;
-		}
+		//no need for a sex check since we're directly comparing formIDs.
+		auto charlist = Presets::PresetContainer::GetInstance()->characterCategorySet;
 
 		// logger::trace("entered findactor successfully");
 		// logger::trace("the size of the character list is {}",
@@ -620,6 +614,42 @@ namespace Presets
 			return presetPath;
 		}
 
+		// utility functions for morphs.ini parsing
+		//https://stackoverflow.com/questions/12966957/
+		std::vector<std::string> explode(std::string const& s, char delim)
+		{
+			std::vector<std::string> result;
+			std::istringstream iss(s);
+
+			for (std::string token; std::getline(iss, token, delim);) { result.push_back(std::move(token)); }
+
+			return result;
+		}
+
+		bool contains(std::vector<std::string> input, std::vector<std::string> comparisonitems)
+		{
+			for (std::string i : input) {
+				for (std::string j : comparisonitems) {
+					if (i.find(j) != -1) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		std::string seek(std::vector<std::string> input, std::vector<std::string> comparisonitems)
+		{
+			for (std::string i : input) {
+				for (std::string j : comparisonitems) {
+					if (i.find(j) != -1) {
+						return i;
+					}
+				}
+			}
+			return "";
+		}
+
 		// opens the morph ini, reads it, and ingests the data.
 		void CheckMorphConfig()
 		{
@@ -648,9 +678,8 @@ namespace Presets
 			// for each key, parse it into race, sex, faction, or character categories and
 			// pass those values to their respective lists.
 			for (std::list<CSimpleIniA::Entry>::iterator keylistIter = keylist.begin(); keylistIter != keylist.end(); keylistIter++) {
-				bool multipreset = false;
 				bool notempty = false;
-				bool faction = false;
+				bool character = false;
 				bool race = false;
 
 				std::vector<categorizedList>* characterCategorySet{ new std::vector<categorizedList> };
@@ -658,18 +687,12 @@ namespace Presets
 				std::vector<categorizedList>* factionCategorySet{ new std::vector<categorizedList> };
 				std::vector<bodypreset>* masterSet{ new std::vector<bodypreset> };
 
+				characterCategorySet = &container->characterCategorySet;
+
 				std::string name = keylistIter->pItem;
 
 				// trim the module name off the end of specific character lists
 				size_t eraseamount = name.find(".esm|");
-
-				if (eraseamount != -1) {
-					name.erase(0, eraseamount + 4);
-				}
-				eraseamount = name.find(".esp|");
-				if (eraseamount != -1) {
-					name.erase(0, eraseamount + 4);
-				}
 
 				categorizedList parsedlist;
 
@@ -677,98 +700,108 @@ namespace Presets
 				std::string preset;
 				bodypreset bodysliders;
 
+				//nifty delimiting hack
+				auto categories = explode(name, '|');
+
 				// identifying discriminators
 
 				// sex identification
-				if (name.find("Female") != -1) {
+				if (contains(categories, { "Female" })) {
 					logger::trace("Female preset identified in morphs.ini");
-					characterCategorySet = &container->femaleCharacterCategorySet;
 					raceCategorySet = &container->femaleRaceCategorySet;
 					factionCategorySet = &container->femaleFactionCategorySet;
 					masterSet = &container->femaleMasterSet;
 
 					// sex identification
 					parsedlist.sex = "Female";
-					eraseamount = name.find("Female");
-					name.erase(0, eraseamount + 7);
 
 				}
 
-				else if (name.find("Male") != -1) {
+				else if (contains(categories, { "Female" })) {
 					logger::trace("male preset identified in morphs.ini.");
-					characterCategorySet = &container->maleCharacterCategorySet;
 					raceCategorySet = &container->maleRaceCategorySet;
 					factionCategorySet = &container->maleFactionCategorySet;
 					masterSet = &container->maleMasterSet;
 
 					parsedlist.sex = "Male";
-					eraseamount = name.find("Male");
-					name.erase(0, eraseamount + 5);
+
 				} else {
 					// if there's no sex value, it must be a character ID
-					// trim leading brace
-					name.erase(0, 1);
+					character = true;
 
-					// begin form ID conversion
+					RE::Actor* IDOwner;
+
+					std::string stringID;
+					std::string owningMod;
+
+					//if we have a character, dissect their owning mod and their ID. write it down.
+					for (std::string item : categories) {
+						if (!contains({ item }, { ".esp", ".esm" })) {
+							stringID = item;
+							logger::trace("{} is the character ID", stringID);
+						} else if (contains({ item }, { ".esp", ".esm" })) {
+							logger::trace("{} is the owning mod.", item);
+							owningMod = item;
+						}
+					}
+
+					//then, look up the actor inside their own mod using the data we just wrote down.
 					uint32_t hexnumber;
-					sscanf_s(name.c_str(), "%x", &hexnumber);
-					parsedlist.formID = hexnumber;
-					// auto actor = RE::TESObjectREFR::LookupByID<RE::Actor>(hexnumber);
+					sscanf_s(stringID.c_str(), "%x", &hexnumber);
+
+					auto datahandler = RE::TESDataHandler::GetSingleton();
+
+					//this gives us a TESForm, which we can then use to get their full length formID. This is good.
+					auto actorform = datahandler->LookupForm(hexnumber, owningMod);
+
+					auto ID = actorform->GetFormID();
+					logger::trace("{} is their ID", ID);
+					RE::TESNPC* test = datahandler->LookupForm<RE::TESNPC>(hexnumber, owningMod);
+
+					if (test->GetSex() == true) {
+						masterSet = &container->femaleMasterSet;
+					} else {
+						masterSet = &container->maleMasterSet;
+					}
+					logger::trace("Sex is Female? {}", test->GetSex());
+					if (actorform->GetFormType() == RE::FormType::NPC) {
+						logger::trace("actor confirmed.");
+					}
+
+					//now we pass the data to the list struct. owningMod is likely unused, but hey, it's cool right?
+					parsedlist.formID = ID;
+					parsedlist.owningMod = owningMod;
 				}
 
-				// if we spot a faction name, fill the faction tag. If we spot a race
-				// name, fill the race tag.
-				if (name.find("Faction") != -1) {
-					logger::trace("Faction is: {}", name);
-					parsedlist.faction = name;
-					faction = true;
+				// if its got "race" in the name, it's a race. If it doesn't, it's a faction.
 
-				} else if (name.find("Race") != -1) {
-					logger::trace("Race is: {}", name);
-					parsedlist.race = name;
+				if (contains(categories, { "Race" })) {
+					parsedlist.race = seek(categories, { "Race" });
+					logger::trace("Race is {}", parsedlist.race);
 					race = true;
+
+				} else if (!character) {
+					//faction is always the third element in the list when formatted correctly
+					parsedlist.faction = categories[2];
+					logger::trace("Faction is {}", categories[2]);
 				}
+
+				std::vector<std::string> bodylist = explode(value, '|');
 
 				// chop up the presets into substrings
-				while (value.find("|") != -1) {
-					eraseamount = value.find_first_of("|");
-					preset = value.substr(0, eraseamount);
-					//logger::trace("attempting to find preset {} in the master list", preset);
-					//logger::trace("the master set has {} elements in it, and its first element is {}", masterSet.size(), masterSet.begin()[0].name);
-					bodysliders = FindPresetByName(*masterSet, preset);
-
-					// push the preset body in if there is one.
+				logger::trace("bodylist is {} elements large", bodylist.size());
+				for (std::string item : bodylist) {
+					logger::trace("body we're lookin at is {}", item);
+					bodysliders = FindPresetByName(*masterSet, item);
 					if (bodysliders != notfound) {
-						// logger::trace("Pushing preset into categorizedSet!");
 						notempty = true;
+						logger::trace("found a body match!");
 						parsedlist.categorizedSet.push_back(bodysliders);
-					} else {
-						// logger::trace("Preset was not pushed into categorizedSet because it
-						// was not found.");
-					}
 
-					value.erase(0, eraseamount + 1);
-					multipreset = true;
-				}
-				// if it doesn't activate the loop a single time, there must be only one
-				// preset on the key. that's what this check is for.
-				if (!multipreset) {
-					//logger::trace("Attempting to find preset {} in the master list (singular)", value);
-					//logger::trace("the master set has {} elements in it, and its first element is {}", masterSet.size(), masterSet.begin()[0].name);
-
-					bodysliders = FindPresetByName(*masterSet, value);
-					if (bodysliders != notfound) {
-						logger::trace("Pushing singular preset into categorizedSet!");
-						parsedlist.categorizedSet.push_back(bodysliders);
-						notempty = true;
-					} else {
-						// logger::trace("Preset was not pushed into categorizedSet because it
-						// was not found.");
+						logger::trace("{}.xml was identified as a preset for {}", item, name);
 					}
-					// logger::trace("{}.xml was identified as a preset for {}", value, name);
 				}
 
-				parsedlist.formID = 0;
 				// to help us tell where the preset belongs
 
 				// safety guard to make sure we can't load presets we don't have the xmls
@@ -776,8 +809,8 @@ namespace Presets
 				if (notempty) {
 					// if its a character preset, it goes in the character list.
 					logger::trace("Beginning pass of parsedList!");
-					if (parsedlist.formID != 0) {
-						logger::trace("formID {} is being passed into the character list!", name);
+					if (character) {
+						logger::trace("formID {} is being passed into the character list!", parsedlist.formID);
 						characterCategorySet->push_back(parsedlist);
 					}
 
@@ -788,8 +821,7 @@ namespace Presets
 					}
 
 					// if it's a faction preset, it goes into the faction list.
-					else if (faction) {
-						logger::trace("The faction data is {} elements long", parsedlist.categorizedSet.size());
+					else {
 						logger::trace("{} is being passed to the faction list!", parsedlist.faction);
 						factionCategorySet->push_back(parsedlist);
 					}

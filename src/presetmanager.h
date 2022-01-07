@@ -41,6 +41,7 @@ namespace Presets
 		std::string sex = "Female";
 		std::string race = "Nord";
 		std::string faction = "";
+		std::string owningMod = "";
 		bool characterflag = false;
 		uint32_t formID = 0;
 	};
@@ -54,12 +55,12 @@ namespace Presets
 
 		// master lists of all user-defined categories
 		std::vector<categorizedList> femaleRaceCategorySet;
-		std::vector<categorizedList> femaleCharacterCategorySet;
 		std::vector<categorizedList> femaleFactionCategorySet;
 
 		std::vector<categorizedList> maleRaceCategorySet;
-		std::vector<categorizedList> maleCharacterCategorySet;
 		std::vector<categorizedList> maleFactionCategorySet;
+
+		std::vector<categorizedList> characterCategorySet;
 
 		std::vector<Presets::slider> clothingsliders;
 		Presets::bodypreset clothingUnprocessed{ clothingsliders, "Clothing" };

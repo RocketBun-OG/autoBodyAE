@@ -16,35 +16,56 @@ namespace
 	// this basically serves as our init function
 	void MessageHandler(SKSE::MessagingInterface::Message* a_message)
 	{
+		auto morf = Bodygen::Morphman::GetInstance();
 		switch (a_message->type) {
 			// we set this messaging interface up so we can talk to SKEE
 		case SKSE::MessagingInterface::kPostLoad:
-			SKEE::InterfaceExchangeMessage message;
-			auto SKSEinterface = SKSE::GetMessagingInterface();
-			SKSEinterface->Dispatch(
-				SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*), "skee");
-			// interface map contained within the message allows us to find the morph
-			// interface. Like a treasure map.
-			if (!message.interfaceMap) {
-				logger::critical("Couldn't acquire interface map!");
+			{
+				SKEE::InterfaceExchangeMessage message;
+				auto SKSEinterface = SKSE::GetMessagingInterface();
+				SKSEinterface->Dispatch(
+					SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*), "skee");
+				// interface map contained within the message allows us to find the morph
+				// interface. Like a treasure map.
+				if (!message.interfaceMap) {
+					logger::critical("Couldn't acquire interface map!");
+					return;
+				}
+
+				// now we get the morph interface.
+				auto morphInterface = static_cast<SKEE::IBodyMorphInterface*>(message.interfaceMap->QueryInterface("BodyMorph"));
+				if (!morphInterface) {
+					logger::critical("Couldn't acquire morph interface!");
+					return;
+				}
+				logger::trace("Bodymorph Version {}", morphInterface->GetVersion());
+
+				// now we pass the interface to our dearest friend morf.
+
+				if (!morf->GetMorphInterface(morphInterface)) {
+					logger::critical("BodyMorphInterface failed to pass to morphman! The mod will not work.");
+				}
+
+				Event::RegisterEvents();
 				return;
 			}
+		case SKSE::MessagingInterface::kDataLoaded:
+			{
+				logger::trace("Data loaded!");
 
-			// now we get the morph interface.
-			auto morphInterface = static_cast<SKEE::IBodyMorphInterface*>(message.interfaceMap->QueryInterface("BodyMorph"));
-			if (!morphInterface) {
-				logger::critical("Couldn't acquire morph interface!");
+				logger::trace("checking config.");
+				std::string path = Presets::Parsing::CheckConfig();
+
+				auto presetcontainer = Presets::PresetContainer::GetInstance();
+
+				Presets::Parsing::ParseAllInFolder(path, &presetcontainer->femaleMasterSet, &presetcontainer->maleMasterSet);
+				logger::info("{} body presets were loaded into the female master list.", presetcontainer->femaleMasterSet.size());
+				logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
+
+				Presets::Parsing::CheckMorphConfig();
+				morf->initClothingSliders();
 				return;
 			}
-			logger::trace("Bodymorph Version {}", morphInterface->GetVersion());
-
-			// now we pass the interface to our dearest friend morf.
-			auto morf = Bodygen::Morphman::GetInstance();
-			if (!morf->GetMorphInterface(morphInterface)) {
-				logger::critical("BodyMorphInterface failed to pass to morphman! The mod will not work.");
-			}
-
-			Event::RegisterEvents();
 		}
 	}
 
@@ -62,7 +83,7 @@ namespace
 		// work.
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-		const auto level = spdlog::level::trace;
+		const auto level = spdlog::level::info;
 
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(level);
@@ -97,18 +118,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	if (!message->RegisterListener(MessageHandler)) {
 		return false;
 	}
-	logger::trace("checking config.");
-	std::string path = Presets::Parsing::CheckConfig();
 
-	auto presetcontainer = Presets::PresetContainer::GetInstance();
-
-	Presets::Parsing::ParseAllInFolder(path, &presetcontainer->femaleMasterSet, &presetcontainer->maleMasterSet);
-	logger::info("{} body presets were loaded into the female master list.", presetcontainer->femaleMasterSet.size());
-	logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
-
-	Presets::Parsing::CheckMorphConfig();
-	auto morf = Bodygen::Morphman::GetInstance();
-	morf->initClothingSliders();
 	//logger::trace("Clothingsliders is {} elements long in main", presetcontainer->clothingsliders.size());
 	auto papyrus = SKSE::GetPapyrusInterface();
 	if (!papyrus->Register(PapyrusBridging::BindAllFunctions)) {
