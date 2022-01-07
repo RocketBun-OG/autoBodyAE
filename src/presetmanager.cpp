@@ -725,7 +725,7 @@ namespace Presets
 
 				}
 
-				else if (contains(categories, { "Female" })) {
+				else if (contains(categories, { "Male" })) {
 					logger::trace("male preset identified in morphs.ini.");
 					raceCategorySet = &container->maleRaceCategorySet;
 					factionCategorySet = &container->maleFactionCategorySet;
