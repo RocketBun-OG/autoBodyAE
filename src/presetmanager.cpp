@@ -446,8 +446,8 @@ namespace Presets
 				// again.
 				for (std::string item : *presetgroups) {
 					if (item._Equal("CBBE") || item._Equal("3BBB") || item._Equal("CBAdvanced") || (item.find("UNP") != -1)) {
-						logger::trace("Female preset found!");
-						PrintPreset(bodypreset{ *sliderset, *presetname });
+						//logger::trace("Female preset found!");
+						//PrintPreset(bodypreset{ *sliderset, *presetname });
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
 					} else if (item._Equal("HIMBO")) {

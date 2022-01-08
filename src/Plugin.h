@@ -9,10 +9,10 @@ namespace Plugin
 	inline constexpr REL::Version VERSION{
 		// clang-format off
 		1u,
-		0u,
-		0u,
+		2u,
+		2u,
 		// clang-format on
 	};
 
-	inline constexpr auto NAME = "autoBodyAE"sv;
+	inline constexpr auto NAME = "AutoBodyAE"sv;
 }  // namespace Plugin

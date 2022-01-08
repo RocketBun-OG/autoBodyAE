@@ -23,8 +23,8 @@ namespace
 			{
 				SKEE::InterfaceExchangeMessage message;
 				auto SKSEinterface = SKSE::GetMessagingInterface();
-				SKSEinterface->Dispatch(
-					SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*), "skee");
+				SKSEinterface->Dispatch(SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*),
+					"skee");
 				// interface map contained within the message allows us to find the morph
 				// interface. Like a treasure map.
 				if (!message.interfaceMap) {
@@ -64,7 +64,6 @@ namespace
 
 				Presets::Parsing::CheckMorphConfig();
 				morf->initClothingSliders();
-				Presets::Parsing::PrintPreset(Presets::FindPresetByName(presetcontainer->femaleMasterSet, "CBBE Slim"));
 				return;
 			}
 		}
@@ -84,8 +83,11 @@ namespace
 		// work.
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
+#ifdef NDEBUG
+		const auto level = spdlog::level::info;
+#else
 		const auto level = spdlog::level::trace;
-
+#endif
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(level);
 		log->flush_on(level);
