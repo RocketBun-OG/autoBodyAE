@@ -788,7 +788,7 @@ namespace Presets
 					parsedlist.faction = categories[2];
 					logger::trace("Faction is {}", categories[2]);
 
-				} else {
+				} else if (!character) {
 					logger::info("ERROR: The category {} is not formatted correctly. It will be ignored. NOTE: All|Female= and All|Male= will cause this error.", name);
 				}
 
