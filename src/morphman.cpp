@@ -49,6 +49,7 @@ namespace Bodygen
 		container->clothingUnprocessed.sliderlist = *clothingsliders;
 	}
 
+	//the clothing sliders list is un-interpolated, so we need to do that here.
 	Presets::completedbody Morphman::FinishClothing(RE::Actor* a_actor)
 	{
 		auto weight = GetWeight(a_actor);
@@ -58,18 +59,21 @@ namespace Bodygen
 		Presets::bodypreset* clothingUnprocessed{ new Presets::bodypreset };
 		Presets::completedbody* clothingmods{ new Presets::completedbody };
 
+		//first grab the unprocessed list of sliders (defined directly above this function)
 		clothingUnprocessed = &container->clothingUnprocessed;
 
-		//logger::trace("We've acquired an unprocessed list of {} elements", clothingUnprocessed->sliderlist.size());
+		//then interpolate those sliders to the correct value for the target weight, using InterpolateAllValues
 		*clothingmods = InterpolateAllValues(*clothingUnprocessed, weight);
-		//logger::trace("The clothing list is {} elements long", clothingmods->nodelist.size());
+
+		//now we have to calibrate a little bit. Tune each value in the "finished" list by whatever amount the actor already has for that slider.
 		for (int i = 0; i < clothingmods->nodelist.size(); ++i) {
 			float precalibration = clothingmods->nodelist[i].value;
 			float tuningvalue = morphman->morphInterface->GetMorph(a_actor, clothingmods->nodelist[i].name.c_str(), "autoBody");
-			logger::trace("The precalibration value is {} and the value to tune down by is {}", precalibration, tuningvalue);
+			//logger::trace("The precalibration value is {} and the value to tune down by is {}", precalibration, tuningvalue);
 			clothingmods->nodelist[i].value = precalibration - tuningvalue;
 		}
 
+		//then just return the tuned body preset.
 		return *clothingmods;
 	}
 
@@ -78,11 +82,11 @@ namespace Bodygen
 	// checks to see if an actor has been generated already.
 	bool Morphman::IsGenned(RE::Actor* a_actor) { return morphInterface->GetMorph(a_actor, "autoBody_processed", "autoBody") == 1.0f; }
 
-	// sticks a preset onto an NPC. This is the core function of the plugin, pretty
-	// much.
+	// sticks a preset onto an NPC. This is the core function of the plugin, pretty much.
 	void Morphman::ApplyPreset(RE::Actor* a_actor, std::vector<Presets::bodypreset> list)
 	{
 		//ensure that the list has at least one item to avoid divide by zero errors.
+		//Then mark the actor as processed to avoid any more failures.
 		if (list.size() == 0) {
 			logger::trace("There are no presets in this list! We can't apply one!");
 			morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody", 1.0f);
@@ -93,10 +97,11 @@ namespace Bodygen
 
 		// get the weight of the actor
 		auto actorWeight = GetWeight(a_actor);
-		// apply their weight to the preset + the offset defined in the INI
+
+		//now interpolate the values of the sliders based on either their weight, a random weight, or a specific weight (depending on the user's settings).
 		Presets::completedbody readybody = InterpolateAllValues(preset, actorWeight);
 
-		// finally, clear off any sliders we may have put on them.
+		// finally, clear off any sliders we may have already put on them.
 		morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 		// prep complete
 
@@ -106,10 +111,6 @@ namespace Bodygen
 		// mark the actor as generated, so we don't fuck up and generate them again
 		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody", 1.0f);
 		logger::info("Preset [{}] was applied to {}", readybody.presetname, a_actor->GetName());
-		// store the actor's info just in case we need it later. Does not store it if
-		// we already have done so. completedcharacter finished{readybody, a_actor,
-		// a_actor->GetFormID(), a_actor->GetName(), actorWeight};
-		// actorList.push_back(finished);
 
 		return;
 	}

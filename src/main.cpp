@@ -1,5 +1,5 @@
 #pragma once
-#include <Inverts.h>
+
 #include <SimpleIni.h>
 #include <eventhandling.h>
 #include <maffs.h>
@@ -18,7 +18,7 @@ namespace
 	{
 		auto morf = Bodygen::Morphman::GetInstance();
 		switch (a_message->type) {
-			// we set this messaging interface up so we can talk to SKEE
+		// we set this messaging interface up so we can talk to SKEE
 		case SKSE::MessagingInterface::kPostLoad:
 			{
 				SKEE::InterfaceExchangeMessage message;
@@ -48,6 +48,8 @@ namespace
 				Event::RegisterEvents();
 				return;
 			}
+
+		//we can't initiate the parses until data is loaded, because otherwise these functions fail to get some pieces of data and will CTD.
 		case SKSE::MessagingInterface::kDataLoaded:
 			{
 				logger::trace("Data loaded!");
@@ -87,6 +89,7 @@ namespace
 #else
 		const auto level = spdlog::level::trace;
 #endif
+
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(level);
 		log->flush_on(level);

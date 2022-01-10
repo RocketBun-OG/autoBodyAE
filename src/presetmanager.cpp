@@ -678,7 +678,7 @@ namespace Presets
 			morphsINI.GetAllKeys("", keylist);
 
 			// for each key, parse it into race, sex, faction, or character categories and
-			// pass those values to their respective lists.
+			// pass the associated bodies to their respective lists.
 			for (std::list<CSimpleIniA::Entry>::iterator keylistIter = keylist.begin(); keylistIter != keylist.end(); keylistIter++) {
 				bool notempty = false;
 				bool character = false;
@@ -693,8 +693,7 @@ namespace Presets
 
 				std::string name = keylistIter->pItem;
 
-				// trim the module name off the end of specific character lists
-				size_t eraseamount = name.find(".esm|");
+				size_t eraseamount;
 
 				categorizedList parsedlist;
 
@@ -705,7 +704,7 @@ namespace Presets
 				//nifty delimiting hack
 				auto categories = explode(name, '|');
 
-				// identifying discriminators
+				//now the parsing starts. First, see if this line in the INI is male, female, or neither. If it's neither, it's a character.
 
 				// sex identification
 				if (contains(categories, { "Female" })) {
@@ -714,7 +713,6 @@ namespace Presets
 					factionCategorySet = &container->femaleFactionCategorySet;
 					masterSet = &container->femaleMasterSet;
 
-					// sex identification
 					parsedlist.sex = "Female";
 
 				}
@@ -747,36 +745,37 @@ namespace Presets
 						}
 					}
 
-					//then, look up the actor inside their own mod using the data we just wrote down.
+					//then convert the hexadecimal string in the INI into a uint32_t, as this is how skyrim sees these IDs internally.
 					uint32_t hexnumber;
 					sscanf_s(stringID.c_str(), "%x", &hexnumber);
 
 					auto datahandler = RE::TESDataHandler::GetSingleton();
 
-					//this gives us a TESForm, which we can then use to get their full length formID. This is good.
+					//LookupForm gives us a TESForm, which we can then use to get their full length formID. This is good.
+
 					auto actorform = datahandler->LookupForm(hexnumber, owningMod);
 
+					//We have to use this full-length ID in order to identify them with IsInINI and FindActorInINI.
 					auto ID = actorform->GetFormID();
 					logger::trace("{} is their ID", ID);
-					RE::TESNPC* test = datahandler->LookupForm<RE::TESNPC>(hexnumber, owningMod);
 
-					if (test->GetSex() == true) {
+					//retrieve the NPC via the truncated form ID and their owning mod.
+					RE::TESNPC* matchedNPC = datahandler->LookupForm<RE::TESNPC>(hexnumber, owningMod);
+
+					//if that NPC is female, align masterSet with the female master set. Otherwise, align it with the male master set.
+					if (matchedNPC->GetSex() == true) {
 						masterSet = &container->femaleMasterSet;
 					} else {
 						masterSet = &container->maleMasterSet;
 					}
-					logger::trace("Sex is Female? {}", test->GetSex());
-					if (actorform->GetFormType() == RE::FormType::NPC) {
-						logger::trace("actor confirmed.");
-					}
+					//logger::trace("Sex is Female? {}", matchedNPC->GetSex());
 
-					//now we pass the data to the list struct. owningMod is likely unused, but hey, it's cool right?
+					//now we pass the data to the list struct. owningMod is likely unused for now, but hey, it's cool right?
 					parsedlist.formID = ID;
 					parsedlist.owningMod = owningMod;
-				}
+				}  //end character-detection branch
 
-				// if its got "race" in the name, it's a race. If it doesn't, it's a faction.
-
+				// if its got "race" in the name, it's a race. If it doesn't, and there are 3 categories, it's a faction.
 				if (contains(categories, { "Race" })) {
 					parsedlist.race = seek(categories, { "Race" });
 					logger::trace("Race is {}", parsedlist.race);
@@ -788,27 +787,28 @@ namespace Presets
 					parsedlist.faction = categories[2];
 					logger::trace("Faction is {}", categories[2]);
 
-				} else if (!character) {
-					logger::info("ERROR: The category {} is not formatted correctly. It will be ignored. NOTE: All|Female= and All|Male= will cause this error.", name);
 				}
 
+				else if (!character) {
+					logger::info("ERROR: The category {} is not formatted correctly. It will be ignored. NOTE: Currently, All|Female= and All|Male= will cause this error.", name);
+				}
+
+				//now it's time to handle the right side of the = sign: the bodies.
+				//first, separate the bodies using the | delimeter.
 				std::vector<std::string> bodylist = explode(value, '|');
 
-				// chop up the presets into substrings
-				logger::trace("bodylist is {} elements large", bodylist.size());
+				//then, we sift through that newly created vector and ensure that each one has a corresponding entry in the master list. If it doesn't, then we ignore it.
 				for (std::string item : bodylist) {
-					logger::trace("body we're lookin at is {}", item);
+					//logger::trace("body we're lookin at is {}", item);
 					bodysliders = FindPresetByName(*masterSet, item);
 					if (bodysliders != notfound) {
 						notempty = true;
-						logger::trace("found a body match!");
+						//logger::trace("found a body match!");
 						parsedlist.categorizedSet.push_back(bodysliders);
 
-						logger::trace("{}.xml was identified as a preset for {}", item, name);
+						//logger::trace("{}.xml was identified as a preset for {}", item, name);
 					}
 				}
-
-				// to help us tell where the preset belongs
 
 				// safety guard to make sure we can't load presets we don't have the xmls for.
 				if (notempty) {
@@ -829,10 +829,14 @@ namespace Presets
 					else if (faction) {
 						logger::trace("{} is being passed to the faction list!", parsedlist.faction);
 						factionCategorySet->push_back(parsedlist);
-					} else {
+					}
+					//otherwise, it doesn't match any category, so the user must have formatted it wrong. In this case, that line of the ini is ignored.
+					else {
 						logger::trace("pass failed due to malformed INI.");
 					}
-				} else {
+				}
+				//or, if there were no entries in bodylist that matched a preset in the master list, that line of the ini is ignored.
+				else {
 					logger::trace("Preset category was empty! We're not adding it.");
 				}
 			}
@@ -844,7 +848,7 @@ namespace Presets
 			CSimpleIniA configINI;
 			SI_Error rc = configINI.LoadFile("./Data/autoBody/Config/autoBodyConfig.ini");
 			if (rc < 0) {
-				logger::critical("config not found! shit will break.");
+				logger::critical("config not found! AutoBody will probably break.");
 			}
 			configINI.SetValue(sectionname, keyname, value);
 
