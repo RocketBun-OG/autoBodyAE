@@ -8,10 +8,7 @@ namespace PapyrusBridging
 	void RegenActor(RE::StaticFunctionTag*, RE::Actor* a_actor) { Presets::HandleGeneration(a_actor, true); }
 
 	//sets a key on the INI. Just a wrapper for SetConfigKey.
-	void SetINIKey(RE::StaticFunctionTag*, std::string sectionname, std::string keyname, std::string value)
-	{
-		Presets::Parsing::SetConfigKey(sectionname.c_str(), keyname.c_str(), value.c_str());
-	}
+	void SetINIKey(RE::StaticFunctionTag*, std::string sectionname, std::string keyname, std::string value) { Presets::Parsing::SetConfigKey(sectionname.c_str(), keyname.c_str(), value.c_str()); }
 
 	//does what it says on the tin! Put in an actor and a preset name, and the actor gets the preset.
 	void ApplyPresetByName(RE::StaticFunctionTag*, RE::Actor* a_actor, std::string presetname)

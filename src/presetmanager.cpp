@@ -137,13 +137,12 @@ namespace Presets
 			auto morphman = Bodygen::Morphman::GetInstance();
 			logger::trace("NPC {} is being examined.", actor->GetName());
 			//runs the generation algorithm if they havent been generated, or if the mod has been commanded to override their previous generation.
-			//Only thing that overrides right now is the regen spell.
+			//Only things that override right now are the regen spell and the UIExtensions morph menu.
 			if (!morphman->IsGenned(actor) || genOverride) {
 				//logger::trace("We've entered the inner loop of handlegen.");
 				auto player = RE::PlayerCharacter::GetSingleton();
 				playerID = player->formID;
-				//// if we're processing the player load, ignore it and mark the player as
-				/// processed so we don't spam the debug log.
+				// if we're processing the player load, ignore it and mark the player as processed so we don't spam the debug log.
 				if (actor->formID == playerID) {
 					morphman->morphInterface->SetMorph(actor, "autobody_processed", "autoBody", 1.0f);
 					//logger::trace("We've detected the player. Skipping preset application.");
@@ -375,8 +374,7 @@ namespace Presets
 				}
 
 				logger::trace("preset name being loaded is {}", *presetname);
-				std::vector<std::string> discardkeywords{ "Cloth", "cloth", "Outfit", "outfit", "NeverNude", "Bikini", "Feet", "Hands", "OUTFIT",
-					"push", "Push", "Cleavage", "Armor", "Bra" };
+				std::vector<std::string> discardkeywords{ "Cloth", "cloth", "Outfit", "outfit", "NeverNude", "Bikini", "Feet", "Hands", "OUTFIT", "push", "Push", "Cleavage", "Armor", "Bra" };
 				// discard clothed presets.
 				if (Presets::Parsing::contains({ *presetname }, discardkeywords)) {
 					logger::trace("Clothed preset found. Discarding.");
@@ -402,8 +400,7 @@ namespace Presets
 				float* sizevalue{ new float{ 0 } };
 				float* lastsizevalue{ new float{ 0 } };
 				// go through the sliders
-				for (xml_node<>* slider_node = preset_node->first_node("SetSlider"); slider_node;
-					 slider_node = slider_node->next_sibling("SetSlider")) {
+				for (xml_node<>* slider_node = preset_node->first_node("SetSlider"); slider_node; slider_node = slider_node->next_sibling("SetSlider")) {
 					// store the current values of this node
 					*slidername = slider_node->first_attribute()->value();
 					*size = slider_node->first_attribute("size")->value();
@@ -426,14 +423,13 @@ namespace Presets
 					}
 					// if a pair is found, push it into the sliderset vector as a full struct.
 					if (*slidername == *previousslidername) {
-						logger::trace("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername,
-							*lastsizevalue, *sizevalue);
+						logger::trace("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername, *lastsizevalue, *sizevalue);
 
 						sliderset->push_back({ *lastsizevalue, *sizevalue, *slidername });
 					}
 
 					// if a pair is not found, evaluate which half it is and then push it as a
-					// full struct with null values where they belong.
+					// full struct with default values where they belong.
 					else if (*slidername != *previousslidername) {
 						if (!slider_node->next_sibling() || slider_node->next_sibling()->first_attribute()->value() != *slidername) {
 							logger::trace("slider {} is a singlet", *slidername);
@@ -451,7 +447,7 @@ namespace Presets
 							//yet another inversion check for UUNP support.
 						}
 					}
-					// push the values back for the next
+
 					*previousslidername = *slidername;
 					*lastSize = *size;
 					*lastsizevalue = *sizevalue;
@@ -477,10 +473,9 @@ namespace Presets
 
 				logger::info("{} has just been ingested into the master preset list.", *presetname);
 
-				// push the preset into the master list, then erase the sliderset to start
-				// again.
+				// push the preset into the master list, then erase the sliderset to startagain.
 				for (std::string item : *presetgroups) {
-					if (item._Equal("CBBE") || item._Equal("3BBB") || item._Equal("CBAdvanced") || (item.find("UNP") != -1)) {
+					if (item.find("CBBE") != -1 || item.find("3BBB") != -1 || item.find("CBAdvanced") != -1 || (item.find("UNP") != -1)) {
 						//logger::trace("Female preset found!");
 						//PrintPreset(bodypreset{ *sliderset, *presetname });
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
@@ -688,7 +683,7 @@ namespace Presets
 				bool notempty = false;
 				bool character = false;
 				bool race = false;
-
+				bool faction = false;
 				std::vector<categorizedList>* characterCategorySet{ new std::vector<categorizedList> };
 				std::vector<categorizedList>* raceCategorySet{ new std::vector<categorizedList> };
 				std::vector<categorizedList>* factionCategorySet{ new std::vector<categorizedList> };
@@ -789,13 +784,12 @@ namespace Presets
 
 				} else if (!character && categories.size() == 3) {
 					//faction is always the third element in the list when formatted correctly
+					faction = true;
 					parsedlist.faction = categories[2];
 					logger::trace("Faction is {}", categories[2]);
+
 				} else {
-					logger::info(
-						"ERROR: The category {} is not formatted correctly. It will be ignored. NOTE: All|Female= and All|Male= will cause this "
-					    "error.",
-						name);
+					logger::info("ERROR: The category {} is not formatted correctly. It will be ignored. NOTE: All|Female= and All|Male= will cause this error.", name);
 				}
 
 				std::vector<std::string> bodylist = explode(value, '|');
@@ -816,8 +810,7 @@ namespace Presets
 
 				// to help us tell where the preset belongs
 
-				// safety guard to make sure we can't load presets we don't have the xmls
-				// for.
+				// safety guard to make sure we can't load presets we don't have the xmls for.
 				if (notempty) {
 					// if its a character preset, it goes in the character list.
 					logger::trace("Beginning pass of parsedList!");
@@ -833,9 +826,11 @@ namespace Presets
 					}
 
 					// if it's a faction preset, it goes into the faction list.
-					else {
+					else if (faction) {
 						logger::trace("{} is being passed to the faction list!", parsedlist.faction);
 						factionCategorySet->push_back(parsedlist);
+					} else {
+						logger::trace("pass failed due to malformed INI.");
 					}
 				} else {
 					logger::trace("Preset category was empty! We're not adding it.");

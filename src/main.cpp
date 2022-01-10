@@ -7,7 +7,7 @@
 #include <presetmanager.h>
 
 // Credit to Sairion for open sourcing OBody-SKSE, I used his code as reference in a number of places including:
-//NORefit. It's a direct rip. Excellent trickery with the sliders, Sairion.
+//ORefit. It's a direct rip, with a little tweaking. Excellent trickery with the sliders, Sairion.
 //event handling
 //the MessageHandler skeleton & morph interface handshake
 //morphman.h (specifically for getWeight as well as the conceptual idea of using a morph to mark an actor as genned).
@@ -23,8 +23,7 @@ namespace
 			{
 				SKEE::InterfaceExchangeMessage message;
 				auto SKSEinterface = SKSE::GetMessagingInterface();
-				SKSEinterface->Dispatch(
-					SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*), "skee");
+				SKSEinterface->Dispatch(SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*), "skee");
 				// interface map contained within the message allows us to find the morph
 				// interface. Like a treasure map.
 				if (!message.interfaceMap) {

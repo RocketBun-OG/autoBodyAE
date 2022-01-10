@@ -44,6 +44,7 @@ namespace Presets
 		std::string owningMod = "";
 		bool characterflag = false;
 		uint32_t formID = 0;
+		bool ignore = false;
 	};
 
 	class PresetContainer

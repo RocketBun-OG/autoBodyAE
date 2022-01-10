@@ -73,10 +73,7 @@ namespace Bodygen
 		return *clothingmods;
 	}
 
-	bool Morphman::GetMorphInterface(SKEE::IBodyMorphInterface* a_morphInterface)
-	{
-		return a_morphInterface->GetVersion() ? morphInterface = a_morphInterface : false;
-	}
+	bool Morphman::GetMorphInterface(SKEE::IBodyMorphInterface* a_morphInterface) { return a_morphInterface->GetVersion() ? morphInterface = a_morphInterface : false; }
 
 	// checks to see if an actor has been generated already.
 	bool Morphman::IsGenned(RE::Actor* a_actor) { return morphInterface->GetMorph(a_actor, "autoBody_processed", "autoBody") == 1.0f; }
