@@ -10,7 +10,7 @@ namespace Plugin
 		// clang-format off
 		1u,
 		2u,
-		2u,
+		2u
 		// clang-format on
 	};
 

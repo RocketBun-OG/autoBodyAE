@@ -23,8 +23,8 @@ namespace
 			{
 				SKEE::InterfaceExchangeMessage message;
 				auto SKSEinterface = SKSE::GetMessagingInterface();
-				SKSEinterface->Dispatch(SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*),
-					"skee");
+				SKSEinterface->Dispatch(
+					SKEE::InterfaceExchangeMessage::kExchangeInterface, (void*)&message, sizeof(SKEE::InterfaceExchangeMessage*), "skee");
 				// interface map contained within the message allows us to find the morph
 				// interface. Like a treasure map.
 				if (!message.interfaceMap) {
@@ -93,7 +93,7 @@ namespace
 		log->flush_on(level);
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("autoBody v1: [%^%l%$] %v"s);
+		spdlog::set_pattern("AutoBody v1: [%^%l%$] %v"s);
 	}
 }  // namespace
 

@@ -288,6 +288,42 @@ namespace Presets
 	//everything to do with managing external files.
 	namespace Parsing
 	{
+		// utility functions for morphs.ini parsing
+		//https://stackoverflow.com/questions/12966957/
+		std::vector<std::string> explode(std::string const& s, char delim)
+		{
+			std::vector<std::string> result;
+			std::istringstream iss(s);
+
+			for (std::string token; std::getline(iss, token, delim);) { result.push_back(std::move(token)); }
+
+			return result;
+		}
+
+		bool contains(std::vector<std::string> input, std::vector<std::string> comparisonitems)
+		{
+			for (std::string i : input) {
+				for (std::string j : comparisonitems) {
+					if (i.find(j) != -1) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		std::string seek(std::vector<std::string> input, std::vector<std::string> comparisonitems)
+		{
+			for (std::string i : input) {
+				for (std::string j : comparisonitems) {
+					if (i.find(j) != -1) {
+						return i;
+					}
+				}
+			}
+			return "";
+		}
+
 		void PrintPreset(bodypreset preset)
 		{
 			logger::info("Now displaying preset: {}", preset.name);
@@ -339,15 +375,14 @@ namespace Presets
 				}
 
 				logger::trace("preset name being loaded is {}", *presetname);
+				std::vector<std::string> discardkeywords{ "Cloth", "cloth", "Outfit", "outfit", "NeverNude", "Bikini", "Feet", "Hands", "OUTFIT",
+					"push", "Push", "Cleavage", "Armor", "Bra" };
 				// discard clothed presets.
-				if (presetname->find("Cloth") != -1 || presetname->find("cloth") != -1 || presetname->find("Outfit") != -1 ||
-					presetname->find("outfit") != -1 || presetname->find("NeverNude") != -1 || presetname->find("Bikini") != -1 ||
-					presetname->find("Feet") != -1 || presetname->find("Hands") != -1 || presetname->find("OUTFIT") != -1 ||
-					presetname->find("push") != -1 || presetname->find("Armor") != -1 || presetname->find("Bra") != -1 ||
-					presetname->find("Push") != -1) {
+				if (Presets::Parsing::contains({ *presetname }, discardkeywords)) {
 					logger::trace("Clothed preset found. Discarding.");
 					continue;
 				}
+
 				//for finding if we need to check for inverted sliders
 				bool UUNP = false;
 				*bodytype = preset_node->last_attribute()->value();
@@ -622,42 +657,6 @@ namespace Presets
 			return presetPath;
 		}
 
-		// utility functions for morphs.ini parsing
-		//https://stackoverflow.com/questions/12966957/
-		std::vector<std::string> explode(std::string const& s, char delim)
-		{
-			std::vector<std::string> result;
-			std::istringstream iss(s);
-
-			for (std::string token; std::getline(iss, token, delim);) { result.push_back(std::move(token)); }
-
-			return result;
-		}
-
-		bool contains(std::vector<std::string> input, std::vector<std::string> comparisonitems)
-		{
-			for (std::string i : input) {
-				for (std::string j : comparisonitems) {
-					if (i.find(j) != -1) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		std::string seek(std::vector<std::string> input, std::vector<std::string> comparisonitems)
-		{
-			for (std::string i : input) {
-				for (std::string j : comparisonitems) {
-					if (i.find(j) != -1) {
-						return i;
-					}
-				}
-			}
-			return "";
-		}
-
 		// opens the morph ini, reads it, and ingests the data.
 		void CheckMorphConfig()
 		{
@@ -788,10 +787,15 @@ namespace Presets
 					logger::trace("Race is {}", parsedlist.race);
 					race = true;
 
-				} else if (!character) {
+				} else if (!character && categories.size() == 3) {
 					//faction is always the third element in the list when formatted correctly
 					parsedlist.faction = categories[2];
 					logger::trace("Faction is {}", categories[2]);
+				} else {
+					logger::info(
+						"ERROR: The category {} is not formatted correctly. It will be ignored. NOTE: All|Female= and All|Male= will cause this "
+					    "error.",
+						name);
 				}
 
 				std::vector<std::string> bodylist = explode(value, '|');
