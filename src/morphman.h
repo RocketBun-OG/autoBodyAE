@@ -39,6 +39,7 @@ namespace Bodygen
 
 		//other
 		bool clothingInit;
+
 		std::vector<completedcharacter> actorList;
 
 		SKEE::IBodyMorphInterface* morphInterface;

@@ -1,5 +1,7 @@
 #include <maffs.h>
 #include <morphman.h>
+
+//simple formula to linearly interpolate a slider to its value at some weight.
 float InterpolateSliderValue(Presets::slider bodyslider, float weight)
 {
 	const int maxweight = 100;
@@ -16,9 +18,8 @@ float InterpolateSliderValue(Presets::slider bodyslider, float weight)
 Presets::completedbody InterpolateAllValues(Presets::bodypreset body, int weight)
 {
 	auto morphman = Bodygen::Morphman::GetInstance();
-	//logger::trace("Interpolation is taking place.");
 
-	//based on options set in the config, influence weight differently.
+	//based on options set in the config, this influences weight differently.
 	switch (morphman->weightOptions) {
 	case 0:
 		//logger::trace("Using standard actor weight.");
@@ -36,6 +37,7 @@ Presets::completedbody InterpolateAllValues(Presets::bodypreset body, int weight
 		break;
 	}
 
+	//if weightbias is enabled, tune the weight value by that bias amount before flattening the sliders.
 	if (morphman->enableWeightBias) {
 		weight += morphman->biasamount;
 	}

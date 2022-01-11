@@ -38,6 +38,7 @@ namespace Event
 	};
 
 	// Credit to Sairion for this function
+	//This fires when an actor equips or unequips something. We use this for the application and removal of the ORefit morphs.
 	class EquipEventHandler : public RE::BSTEventSink<RE::TESEquipEvent>
 	{
 	public:
@@ -94,6 +95,7 @@ namespace Event
 		EquipEventHandler& operator=(EquipEventHandler&&) = delete;
 	};
 
+	//registers these events to hook up to the game. Required for any of this to work.
 	void RegisterEvents()
 	{
 		auto events = RE::ScriptEventSourceHolder::GetSingleton();
