@@ -146,21 +146,12 @@ namespace Bodygen
 			if (unequip) {
 				logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
+				morphInterface->ApplyBodyMorphs(a_actor, true);
 			} else {
 				logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
 				ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
 			}
 		}
-	}
-
-	// clears all changes we have made to an actor
-	void Morphman::FlushActor(RE::Actor* a_actor)
-	{
-		// clear the morphs.
-		morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
-
-		morphInterface->ApplyBodyMorphs(a_actor, false);
-		morphInterface->UpdateModelWeight(a_actor, true);
 	}
 
 	// how fat are they? lul

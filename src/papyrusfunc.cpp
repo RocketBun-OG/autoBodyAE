@@ -116,6 +116,13 @@ namespace PapyrusBridging
 		return morphman->IsGenned(a_actor);
 	}
 
+	void ClearAllMorphs(RE::StaticFunctionTag*, RE::Actor* a_actor)
+	{
+		auto morphman = Bodygen::Morphman::GetInstance();
+		morphman->morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
+		morphman->morphInterface->ApplyBodyMorphs(a_actor);
+	}
+
 	bool BindAllFunctions(VM* a_vm)
 	{
 		a_vm->RegisterFunction("RegenActor", "autoBodyUtils", RegenActor);
@@ -123,6 +130,7 @@ namespace PapyrusBridging
 		a_vm->RegisterFunction("ApplyPresetByName", "autoBodyUtils", ApplyPresetByName);
 		a_vm->RegisterFunction("GetActorPresetPool", "autoBodyUtils", GetActorPresetPool);
 		a_vm->RegisterFunction("GetMasterPresetPool", "autoBodyUtils", GetMasterPresetPool);
+		a_vm->RegisterFunction("ClearAllMorphs", "autoBodyUtils", ClearAllMorphs);
 		a_vm->RegisterFunction("GetActorGenerated", "autoBodyUtils", GetActorGenerated);
 		return true;
 	}

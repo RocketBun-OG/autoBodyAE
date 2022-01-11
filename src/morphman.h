@@ -69,9 +69,6 @@ namespace Bodygen
 		// apply or remove clothing sliders from an actor.
 		void ProcessClothing(RE::Actor* a_actor, bool unequip);
 
-		// clears all changes we have made to an actor
-		void FlushActor(RE::Actor* a_actor);
-
 		// how fat are they? lul
 		float GetWeight(RE::Actor* a_actor);
 	};

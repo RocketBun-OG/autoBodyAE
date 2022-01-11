@@ -9,8 +9,8 @@ namespace Plugin
 	inline constexpr REL::Version VERSION{
 		// clang-format off
 		1u,
-		2u,
-		2u
+		3u,
+		1u
 		// clang-format on
 	};
 
