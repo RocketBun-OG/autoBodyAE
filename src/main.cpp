@@ -95,10 +95,38 @@ namespace
 		log->flush_on(level);
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("AutoBody v1: [%^%l%$] %v"s);
+		spdlog::set_pattern("[%^%l%$] %v"s);
 	}
 }  // namespace
+#if defined(SKYRIMVR) || defined(SKYRIMSSE)
+extern "C" DLLEXPORT bool SKSEAPI
+	SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+{
 
+	a_info->infoVersion = SKSE::PluginInfo::kVersion;
+	a_info->name = Plugin::NAME.data();
+	a_info->version = Plugin::VERSION.pack();
+
+	if (a_skse->IsEditor()) {
+		logger::critical("Loaded in editor, marking as incompatible"sv);
+		return false;
+	}
+
+	const auto ver = a_skse->RuntimeVersion();
+	if (ver <
+#ifndef SKYRIMVR
+		SKSE::RUNTIME_1_5_39
+#else
+		SKSE::RUNTIME_VR_1_4_15
+#endif
+	) {
+		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
+		return false;
+	}
+
+	return true;
+}
+#else
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	SKSE::PluginVersionData v;
 
@@ -110,13 +138,14 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 
 	return v;
 }();
+#endif
 
 //basically int main()
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	InitializeLog();
 
-	logger::info("{} v{}"sv, "autoBody Plugin", Plugin::VERSION.string());
+	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 	SKSE::Init(a_skse);
 	logger::trace("SKSE initialized.");
 	auto message = SKSE::GetMessagingInterface();
