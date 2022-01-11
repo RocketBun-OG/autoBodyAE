@@ -831,7 +831,10 @@ namespace Presets
 					//LookupForm gives us a TESForm, which we can then use to get their full length formID. This is good.
 
 					auto actorform = datahandler->LookupForm(hexnumber, owningMod);
-
+					if (!actorform) {
+						logger::error("{} is not a valid key!", name);
+						continue;
+					}
 					//We have to use this full-length ID in order to identify them with IsInINI and FindActorInINI.
 					auto ID = actorform->GetFormID();
 					logger::trace("{} is their ID", ID);
