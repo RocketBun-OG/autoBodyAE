@@ -95,7 +95,7 @@ namespace
 		log->flush_on(level);
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("AutoBody v1: [%^%l%$] %v"s);
+		spdlog::set_pattern("[%^%l%$] %v"s);
 	}
 }  // namespace
 #if defined(SKYRIMVR) || defined(SKYRIMSSE)
@@ -145,7 +145,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	InitializeLog();
 
-	logger::info("{} v{}"sv, "autoBody Plugin", Plugin::VERSION.string());
+	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 	SKSE::Init(a_skse);
 	logger::trace("SKSE initialized.");
 	auto message = SKSE::GetMessagingInterface();
