@@ -529,6 +529,7 @@ namespace Presets
 			SI_Error rc = configINI.LoadFile("./Data/autoBody/Config/autoBodyConfig.ini");
 			if (rc < 0) {
 				logger::critical("Config INI not found! Please make sure it is in /Data/autoBody/Config/");
+				return "FAILED";
 			}
 
 			bool failureswitch = false;

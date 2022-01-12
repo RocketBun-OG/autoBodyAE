@@ -11,6 +11,7 @@
 //event handling
 //the MessageHandler skeleton & morph interface handshake
 //morphman.h (specifically for getWeight as well as the conceptual idea of using a morph to mark an actor as genned).
+
 namespace
 {
 	// this basically serves as our init function
@@ -56,7 +57,10 @@ namespace
 
 				logger::trace("checking config.");
 				std::string path = Presets::Parsing::CheckConfig();
-
+				if (path == "FAILED") {
+					logger::critical("The Config INI is missing! AutoBody will now be disabled.");
+					return;
+				}
 				auto presetcontainer = Presets::PresetContainer::GetInstance();
 
 				Presets::Parsing::ParseAllInFolder(path, &presetcontainer->femaleMasterSet, &presetcontainer->maleMasterSet);
@@ -99,10 +103,8 @@ namespace
 	}
 }  // namespace
 #if defined(SKYRIMVR) || defined(SKYRIMSSE)
-extern "C" DLLEXPORT bool SKSEAPI
-	SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
-
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
 	a_info->name = Plugin::NAME.data();
 	a_info->version = Plugin::VERSION.pack();
@@ -114,11 +116,11 @@ extern "C" DLLEXPORT bool SKSEAPI
 
 	const auto ver = a_skse->RuntimeVersion();
 	if (ver <
-#ifndef SKYRIMVR
+#	ifndef SKYRIMVR
 		SKSE::RUNTIME_1_5_39
-#else
+#	else
 		SKSE::RUNTIME_VR_1_4_15
-#endif
+#	endif
 	) {
 		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
 		return false;
