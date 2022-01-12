@@ -73,3 +73,4 @@ cmake --build buildvr --config Release
 * [Ryan-rsm-McKenzie](https://github.com/Ryan-rsm-McKenzie/) for their work on CommonLibSSE and their lovely example plugin, without which this project would not have been possible.
 * My buddy Mike, for being my rubber duck.
 * Scrab, for their assistance with a particular feature of the CommonLibSSE library
+* [Alandtse](https://github.com/alandtse), for his work on the VR port, PRs and bug reports.  
