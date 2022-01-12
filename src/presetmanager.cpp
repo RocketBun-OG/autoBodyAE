@@ -145,7 +145,7 @@ namespace Presets
 				playerID = player->formID;
 				// if we're processing the player load, ignore it and mark the player as processed so we don't spam the debug log.
 				if (actor->formID == playerID) {
-					morphman->morphInterface->SetMorph(actor, "autobody_processed", "autoBody", 1.0f);
+					morphman->morphInterface->SetMorph(actor, "autobody_processed", "autoBody_processed", 1.0f);
 					//logger::trace("We've detected the player. Skipping preset application.");
 					return RE::BSEventNotifyControl::kContinue;
 				}

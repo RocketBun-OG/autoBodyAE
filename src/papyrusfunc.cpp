@@ -38,6 +38,7 @@ namespace PapyrusBridging
 				morphman->morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 
 				//then finally apply the preset.
+				logger::trace("{}, the selected preset, is now being applied.", readybody.presetname);
 				morphman->ApplySliderSet(a_actor, readybody, "autoBody");
 				return;
 			}

@@ -80,7 +80,11 @@ namespace Bodygen
 	bool Morphman::GetMorphInterface(SKEE::IBodyMorphInterface* a_morphInterface) { return a_morphInterface->GetVersion() ? morphInterface = a_morphInterface : false; }
 
 	// checks to see if an actor has been generated already.
-	bool Morphman::IsGenned(RE::Actor* a_actor) { return morphInterface->GetMorph(a_actor, "autoBody_processed", "autoBody") == 1.0f; }
+	bool Morphman::IsGenned(RE::Actor* a_actor)
+	{
+		logger::trace("The value of the tagger morph is {}", morphInterface->GetMorph(a_actor, "autoBody_processed", "autoBody_processed"));
+		return (morphInterface->HasBodyMorph(a_actor, "autoBody_processed", "autoBody_processed"));
+	}
 
 	// sticks a preset onto an NPC. This is the core function of the plugin, pretty much.
 	void Morphman::ApplyPreset(RE::Actor* a_actor, std::vector<Presets::bodypreset> list)
@@ -89,7 +93,7 @@ namespace Bodygen
 		//Then mark the actor as processed to avoid any more failures.
 		if (list.size() == 0) {
 			logger::trace("There are no presets in this list! We can't apply one!");
-			morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody", 1.0f);
+			morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody_processed", 1.0f);
 			return;
 		}
 		// select a random preset from the stack
@@ -107,10 +111,10 @@ namespace Bodygen
 
 		// apply the sliders to the NPC
 		ApplySliderSet(a_actor, readybody, "autoBody");
-
 		// mark the actor as generated, so we don't fuck up and generate them again
-		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody", 1.0f);
-		logger::info("Preset [{}] was applied to {}", readybody.presetname, a_actor->GetName());
+		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody_processed", 1.0f);
+
+		logger::info("Preset [{}] was applied to {}.", readybody.presetname, a_actor->GetName());
 
 		return;
 	}
@@ -127,7 +131,6 @@ namespace Bodygen
 	// apply an entire sliderset to a person.
 	void Morphman::ApplySliderSet(RE::Actor* a_actor, Presets::completedbody body, const char* key)
 	{
-		// logger::trace("Applying sliderset to actor... {}", body.nodelist.size());
 		for (Presets::flattenedslider node : body.nodelist) {
 			// logger::trace("Applying slider {} to the actor", node.name);
 			ApplySlider(a_actor, node, key);
@@ -142,13 +145,14 @@ namespace Bodygen
 		auto sexint = a_actor->GetActorBase()->GetSex();
 		if (sexint == 1) {
 			auto modifiers = FinishClothing(a_actor);
-			logger::trace("Modifiers is {} big", modifiers.nodelist.size());
+			//logger::trace("Modifiers is {} big", modifiers.nodelist.size());
 			if (unequip) {
 				logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 				morphInterface->ApplyBodyMorphs(a_actor, true);
 			} else {
-				logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
+				//logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
+				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 				ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
 			}
 		}
