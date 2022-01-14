@@ -484,6 +484,8 @@ namespace Presets
 						//logger::trace("Male preset found!");
 						malelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
+					} else {
+						logger::info("{} is not assigned to any supported preset groups! It will not be loaded.", *presetname);
 					}
 				}
 				delete sliderset;
