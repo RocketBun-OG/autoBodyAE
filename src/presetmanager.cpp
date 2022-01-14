@@ -471,16 +471,16 @@ namespace Presets
 				size = nullptr;
 				lastSize = nullptr;
 
-				logger::info("{} has just been ingested into the master preset list.", *presetname);
-
 				// push the preset into the master list, then erase the sliderset to startagain.
 				for (std::string item : *presetgroups) {
 					if (item.find("CBBE") != -1 || item.find("3BBB") != -1 || item.find("CBAdvanced") != -1 || (item.find("UNP") != -1)) {
+						logger::info("{} has just been ingested into the female master preset list.", *presetname);
 						//logger::trace("Female preset found!");
 						//PrintPreset(bodypreset{ *sliderset, *presetname });
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
 					} else if (item._Equal("HIMBO")) {
+						logger::info("{} has just been ingested into the male master preset list.", *presetname);
 						//logger::trace("Male preset found!");
 						malelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
@@ -570,7 +570,7 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
-				logger::trace("One");
+
 				morf->usingRace = RaceToggle;
 			}
 
@@ -579,7 +579,7 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
-				logger::trace("Two");
+
 				morf->usingFaction = FactionToggle;
 			}
 
@@ -588,7 +588,7 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
-				logger::trace("Three");
+
 				morf->usingClothes = ClothesToggle;
 			}
 
@@ -597,7 +597,6 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
-				logger::trace("Four");
 				morf->lazyInstall = LazyInstall;
 				// if the lazy install was toggled on, just read the presets from the
 				// calientetools master folder. Otherwise, read from our mod folder.
@@ -613,7 +612,6 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
-				logger::trace("Five");
 				morf->factionPriority = FactionPriority;
 			}
 
@@ -624,7 +622,6 @@ namespace Presets
 			case 1:
 				morf->biasamount = atoi(configINI.GetValue("Options", "bWeightBiasAmount"));
 			default:
-				logger::trace("Six");
 				morf->enableWeightBias = WeightBias;
 			}
 
@@ -634,7 +631,6 @@ namespace Presets
 				break;
 
 			default:
-				logger::trace("Seven");
 				morf->weightOptions = weightOptions;
 			}
 
@@ -643,7 +639,6 @@ namespace Presets
 				failureswitch = true;
 				break;
 			default:
-				logger::trace("Eight.");
 				morf->weightSpecific = weightSpecific;
 			}
 

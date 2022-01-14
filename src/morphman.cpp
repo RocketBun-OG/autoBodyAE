@@ -65,15 +65,7 @@ namespace Bodygen
 		//then interpolate those sliders to the correct value for the target weight, using InterpolateAllValues
 		*clothingmods = InterpolateAllValues(*clothingUnprocessed, weight);
 
-		//now we have to calibrate a little bit. Tune each value in the "finished" list by whatever amount the actor already has for that slider.
-		for (int i = 0; i < clothingmods->nodelist.size(); ++i) {
-			float precalibration = clothingmods->nodelist[i].value;
-			float tuningvalue = morphman->morphInterface->GetMorph(a_actor, clothingmods->nodelist[i].name.c_str(), "autoBody");
-			//logger::trace("The precalibration value is {} and the value to tune down by is {}", precalibration, tuningvalue);
-			clothingmods->nodelist[i].value = precalibration - tuningvalue;
-		}
-
-		//then just return the tuned body preset.
+		//then just return the modifiers. 
 		return *clothingmods;
 	}
 
