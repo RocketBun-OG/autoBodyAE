@@ -472,21 +472,25 @@ namespace Presets
 				lastSize = nullptr;
 
 				// push the preset into the master list, then erase the sliderset to startagain.
+				bool fail = true;
 				for (std::string item : *presetgroups) {
 					if (item.find("CBBE") != -1 || item.find("3BBB") != -1 || item.find("CBAdvanced") != -1 || (item.find("UNP") != -1)) {
 						logger::info("{} has just been ingested into the female master preset list.", *presetname);
+						fail = false;
 						//logger::trace("Female preset found!");
 						//PrintPreset(bodypreset{ *sliderset, *presetname });
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
 					} else if (item._Equal("HIMBO")) {
 						logger::info("{} has just been ingested into the male master preset list.", *presetname);
+						fail = false;
 						//logger::trace("Male preset found!");
 						malelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
-					} else {
-						logger::info("{} is not assigned to any supported preset groups! It will not be loaded.", *presetname);
 					}
+				}
+				if (fail) {
+					logger::info("{} is not assigned to any supported preset groups! It will not be loaded.", *presetname);
 				}
 				delete sliderset;
 			}
@@ -530,8 +534,10 @@ namespace Presets
 			// load the file in
 			SI_Error rc = configINI.LoadFile("./Data/autoBody/Config/autoBodyConfig.ini");
 			if (rc < 0) {
-				logger::critical("Config INI not found! Please make sure it is in /Data/autoBody/Config/");
+				logger::critical("autoBodyConfig.ini not found! Please make sure it is in /Data/autoBody/Config/");
 				return "FAILED";
+			} else {
+				logger::info("Now reading autoBodyConfig.ini...");
 			}
 
 			bool failureswitch = false;
@@ -668,8 +674,10 @@ namespace Presets
 				rc = morphsINI.LoadFile("./Data/autoBody/Config/morphs.ini");
 				if (rc < 0) {
 					logger::critical("Bodygen INI not found! Please make sure it is in /Data/autoBody/Config/");
+					return;
 				}
 			}
+			logger::info("Now reading morph config file...");
 
 			std::list<CSimpleIniA::Entry> keylist;
 			// acquire all the keys in the file
@@ -693,7 +701,7 @@ namespace Presets
 
 				std::vector<std::string> masterbodies = explode(value, '|');
 				if (masterbodies.size() < 1) {
-					logger::error("ERROR: This line has no entries! Ignoring...");
+					logger::error("This line has no entries! Ignoring...");
 					continue;
 				}
 
@@ -874,7 +882,6 @@ namespace Presets
 						logger::trace("Master redefinition was found.");
 						continue;
 					} else {
-						logger::info("ERROR: The category {} is not formatted correctly. It will be ignored.", name);
 						continue;
 					}
 				}
@@ -889,10 +896,9 @@ namespace Presets
 					bodysliders = FindPresetByName(*masterSet, item);
 					if (bodysliders != notfound) {
 						notempty = true;
-						logger::trace("found a body match!");
 						parsedlist.categorizedSet.push_back(bodysliders);
 
-						logger::trace("{}.xml was identified as a preset for {}", item, name);
+						logger::trace("{} was identified as a preset for {}", item, name);
 					}
 				}
 
@@ -901,29 +907,29 @@ namespace Presets
 					// if its a character preset, it goes in the character list.
 					logger::trace("Beginning pass of parsedList!");
 					if (character) {
-						logger::trace("formID {} is being passed into the character list!", parsedlist.formID);
+						logger::info("{} is a valid character category and will be used.", name);
 						characterCategorySet->push_back(parsedlist);
 					}
 
 					// if its a race preset, it goes into the race list.
 					else if (race) {
-						logger::trace("{} is being passed to the raceSex list!", parsedlist.race);
+						logger::info("{} is a valid racial category and will be used.", name);
 						raceCategorySet->push_back(parsedlist);
 					}
 
 					// if it's a faction preset, it goes into the faction list.
 					else if (faction) {
-						logger::trace("{} is being passed to the faction list!", parsedlist.faction);
+						logger::info("{} is a valid faction category and will be used.", name);
 						factionCategorySet->push_back(parsedlist);
 					}
 					//otherwise, it doesn't match any category, so the user must have formatted it wrong. In this case, that line of the ini is ignored.
 					else {
-						logger::trace("pass failed due to malformed INI.");
+						logger::error("{} is an incorrectly formatted category! This category will be ignored.", name);
 					}
 				}
 				//or, if there were no entries in bodylist that matched a preset in the master list, that line of the ini is ignored.
 				else {
-					logger::trace("Preset category was empty! We're not adding it.");
+					logger::error("{} has no valid presets! This category will be ignored.", name);
 				}
 			}
 		}
@@ -934,7 +940,7 @@ namespace Presets
 			CSimpleIniA configINI;
 			SI_Error rc = configINI.LoadFile("./Data/autoBody/Config/autoBodyConfig.ini");
 			if (rc < 0) {
-				logger::critical("config not found! AutoBody will probably break.");
+				logger::critical("autoBodyConfig not found! AutoBody will probably break.");
 			}
 			configINI.SetValue(sectionname, keyname, value);
 
