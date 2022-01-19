@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 set(NAME "autoBodyAE")
-set(VERSION 1.3.4.0)
+set(VERSION 1.3.4)
 set(VR_VERSION 1)
 option(COPY_OUTPUT "copy the output of build operations to the game directory" ON)
 option(BUILD_SKYRIMSSE "Build for Skyrim SSE" OFF) # currently untested
@@ -49,6 +49,7 @@ else()
 	set_from_environment(Skyrim64Path)
 	set(SkyrimPath ${Skyrim64Path})
 	set(SkyrimVersion "Skyrim AE")
+	set(VERSION ${VERSION}.0)
 endif()
 find_commonlib_path()
 message(
