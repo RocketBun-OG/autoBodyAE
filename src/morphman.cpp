@@ -65,7 +65,7 @@ namespace Bodygen
 		//then interpolate those sliders to the correct value for the target weight, using InterpolateAllValues
 		*clothingmods = InterpolateAllValues(*clothingUnprocessed, weight);
 
-		//then just return the modifiers. 
+		//then just return the modifiers.
 		return *clothingmods;
 	}
 
@@ -154,6 +154,6 @@ namespace Bodygen
 	float Morphman::GetWeight(RE::Actor* a_actor)
 	{
 		//logger::trace("getting actor weight.");
-		return a_actor->GetActorBase()->GetWeight() / 100.0f;
+		return a_actor->GetActorBase()->GetWeight();
 	}
 };  // namespace Bodygen

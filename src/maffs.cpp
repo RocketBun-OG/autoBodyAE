@@ -15,14 +15,14 @@ float InterpolateSliderValue(Presets::slider bodyslider, float weight)
 }
 
 // creates a completed body for application to an actor. These are discarded after use.
-Presets::completedbody InterpolateAllValues(Presets::bodypreset body, int weight)
+Presets::completedbody InterpolateAllValues(Presets::bodypreset body, float weight)
 {
 	auto morphman = Bodygen::Morphman::GetInstance();
 
 	//based on options set in the config, this influences weight differently.
 	switch (morphman->weightOptions) {
 	case 0:
-		//logger::trace("Using standard actor weight.");
+		logger::trace("Using standard actor weight of {}", weight);
 		weight = weight;
 		break;
 	case 1:
