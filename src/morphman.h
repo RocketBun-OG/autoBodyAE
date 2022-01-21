@@ -67,7 +67,7 @@ namespace Bodygen
 		void ApplySliderSet(RE::Actor* a_actor, Presets::completedbody body, const char* key);
 
 		// apply or remove clothing sliders from an actor.
-		void ProcessClothing(RE::Actor* a_actor, bool unequip);
+		void ProcessClothing(RE::Actor* a_actor, bool unequip, bool safeguard);
 
 		// how fat are they? lul
 		float GetWeight(RE::Actor* a_actor);

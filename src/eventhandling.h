@@ -53,24 +53,34 @@ namespace Event
 			auto morphman = Bodygen::Morphman::GetInstance();
 
 			auto actor = a_event->actor->As<RE::Actor>();
-			if (!a_event || !actor || !morphman->usingClothes)
+			if (!a_event || !actor || !morphman->usingClothes) {
 				return RE::BSEventNotifyControl::kContinue;
+			}
 
 			auto form = RE::TESForm::LookupByID(a_event->baseObject);
-			if (!form)
+			if (!form) {
 				return RE::BSEventNotifyControl::kContinue;
+			}
 
 			if (form->Is(RE::FormType::Armor) || form->Is(RE::FormType::Armature)) {
 				auto dobj = RE::BGSDefaultObjectManager::GetSingleton();
 				auto keywordNPC = dobj->GetObject<RE::BGSKeyword>(RE::DEFAULT_OBJECT::kKeywordNPC);
 
 				if (actor->HasKeyword(keywordNPC) && (actor->GetActorBase()->GetSex() == 1)) {
-					// logger::info("Processing equipment {} ", actor->GetName());
+					//logger::info("Processing equipment for {} ", actor->GetName());
 
 					bool removingBody = false;
+
+					//ensure that clothing morphs don't apply on accessories/boots/etc. equip events
+					bool safeguard = true;
+					auto changes = actor->GetInventoryChanges();
+					auto const armor = changes->GetArmorInSlot(32);
+
+					if (armor) {
+						safeguard = false;
+					}
+
 					if (!a_event->equipped) {
-						auto changes = actor->GetInventoryChanges();
-						auto const armor = changes->GetArmorInSlot(32);
 						if (armor) {
 							removingBody = (armor->formID == form->formID);
 						} else {
@@ -78,7 +88,7 @@ namespace Event
 						}
 					}
 
-					morphman->ProcessClothing(actor, removingBody);
+					morphman->ProcessClothing(actor, removingBody, safeguard);
 				}
 			}
 

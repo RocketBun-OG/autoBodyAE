@@ -132,18 +132,22 @@ namespace Bodygen
 	}
 
 	// apply or remove clothing sliders from an actor.
-	void Morphman::ProcessClothing(RE::Actor* a_actor, bool unequip = false)
+	void Morphman::ProcessClothing(RE::Actor* a_actor, bool unequip, bool safeguard)
 	{
+		if (safeguard) {
+			return;
+		}
+
 		auto sexint = a_actor->GetActorBase()->GetSex();
 		if (sexint == 1) {
 			auto modifiers = FinishClothing(a_actor);
 			//logger::trace("Modifiers is {} big", modifiers.nodelist.size());
 			if (unequip) {
-				logger::trace("Removing clothing morphs from actor {}!", a_actor->GetName());
+				logger::info("Removing clothing morphs from actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 				morphInterface->ApplyBodyMorphs(a_actor, true);
 			} else {
-				//logger::trace("Applying clothing morphs to actor {}!", a_actor->GetName());
+				logger::info("Applying clothing morphs to actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 				ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
 			}
