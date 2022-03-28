@@ -121,6 +121,7 @@ namespace PapyrusBridging
 	{
 		auto morphman = Bodygen::Morphman::GetInstance();
 		morphman->morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
+		morphman->morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 		morphman->morphInterface->ApplyBodyMorphs(a_actor);
 	}
 
