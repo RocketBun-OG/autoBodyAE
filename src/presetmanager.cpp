@@ -218,7 +218,7 @@ namespace Presets
 			}
 		}
 		// this should never happen.
-		logger::trace("Something has gone horribly wrong with actors.");
+		logger::critical("Something has gone horribly wrong with actors.");
 		vecNotFound[0] = { nullsliders, "" };
 		return vecNotFound;
 	}
@@ -249,7 +249,7 @@ namespace Presets
 			}
 		}
 		// this should never happen.
-		logger::trace("Something has gone horribly wrong with factions.");
+		logger::critical("Something has gone horribly wrong with factions.");
 		vecNotFound[0] = { nullsliders, "" };
 		return vecNotFound;
 	}
@@ -280,7 +280,7 @@ namespace Presets
 			}
 		}
 		// this should never happen
-		logger::trace("Something has gone horribly wrong with race.");
+		logger::critical("Something has gone horribly wrong with race.");
 		vecNotFound[0] = { nullsliders, "" };
 		return vecNotFound;
 	}
@@ -358,7 +358,10 @@ namespace Presets
 			// logger::trace("Buffer has been parsed.");
 			//  find the root
 			root_node = preset->first_node("SliderPresets");
-
+			if (!root_node) {
+				logger::trace("Empty xml! Ignoring.");
+				return;
+			}
 			// parse!
 			// for each preset, grab its name and go through the sliders.
 			for (xml_node<>* preset_node = root_node->first_node("Preset"); preset_node; preset_node = preset_node->next_sibling("Preset")) {
@@ -481,7 +484,7 @@ namespace Presets
 						//PrintPreset(bodypreset{ *sliderset, *presetname });
 						femalelist->push_back(bodypreset{ *sliderset, *presetname });
 						break;
-					} else if (item._Equal("HIMBO")) {
+					} else if (item.find("HIMBO") != -1) {
 						logger::info("{} has just been ingested into the male master preset list.", *presetname);
 						fail = false;
 						//logger::trace("Male preset found!");
@@ -680,22 +683,27 @@ namespace Presets
 			logger::info("Now reading morph config file...");
 
 			std::list<CSimpleIniA::Entry> keylist;
+			std::list<CSimpleIniA::Entry> sectionlist;
 			// acquire all the keys in the file
 			morphsINI.GetAllKeys("", keylist);
+			morphsINI.GetAllSections(sectionlist);
+			if (sectionlist.size() > 1) {
+				logger::error("ERROR ERROR WEE WOO WEE WOO! esps with [brackets] in them cannot be used! This will cause the mod to malfunction, as SimpleINI thinks these are section headers.");
+				logger::error(
+					"To resolve this error, you must manually rename the esp to remove the [bracketed] section (from both the filename itself, and its entry in the INI). AutoBody loading will continue, but it is likely presets will fail to load.");
+			}
 
 			bool maleMasterReplaced = false;
 			bool femaleMasterReplaced = false;
-
 			//first, see if there are any master preset lines in there.
 			for (std::list<CSimpleIniA::Entry>::iterator keylistIter = keylist.begin(); keylistIter != keylist.end(); keylistIter++) {
 				if (maleMasterReplaced && femaleMasterReplaced) {
 					logger::trace("Both masters defined in the config! breaking out of the loop.");
 					break;
 				}
-
 				std::string name = keylistIter->pItem;
 				std::string value = morphsINI.GetValue("", keylistIter->pItem);
-
+				logger::trace("the current category is {}", name);
 				std::vector<Presets::bodypreset>* oldmaster{ new std::vector<Presets::bodypreset> };
 				std::vector<Presets::bodypreset> newbodies;
 
