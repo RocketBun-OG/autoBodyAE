@@ -20,7 +20,7 @@
 #	pragma warning(pop)
 
 using namespace std::literals;
-//my computer blew itself up, this is a test commit. 
+
 namespace logger = SKSE::log;
 
 namespace util

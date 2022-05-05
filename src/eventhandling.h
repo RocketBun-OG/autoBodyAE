@@ -53,7 +53,7 @@ namespace Event
 			auto morphman = Bodygen::Morphman::GetInstance();
 
 			auto actor = a_event->actor->As<RE::Actor>();
-			if (!a_event || !actor || !morphman->usingClothes) {
+			if (!a_event || !actor) {
 				return RE::BSEventNotifyControl::kContinue;
 			}
 
