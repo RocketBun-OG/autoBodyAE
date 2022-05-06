@@ -48,8 +48,6 @@ namespace Bodygen
 
 		static Morphman* GetInstance();
 
-		void initClothingSliders();
-
 		Presets::completedbody FinishClothing(RE::Actor* a_actor);
 
 		bool GetMorphInterface(SKEE::IBodyMorphInterface* a_morphInterface);
