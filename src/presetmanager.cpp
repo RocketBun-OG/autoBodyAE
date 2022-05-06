@@ -354,7 +354,7 @@ namespace Presets
 			xml_document<>* preset{ new xml_document };
 			xml_node<>* root_node = NULL;
 
-			// logger::trace("Beginning xml parse...");
+			logger::trace("Beginning xml parse...");
 
 			// suck the xml into the buffer
 			std::ifstream inputFile(filename);
@@ -364,7 +364,7 @@ namespace Presets
 			// parse the buffer
 			preset->parse<0>(&buffer[0]);
 
-			// logger::trace("Buffer has been parsed.");
+			logger::trace("Buffer has been parsed.");
 			//  find the root
 			root_node = preset->first_node("SliderPresets");
 			if (!root_node) {
@@ -381,7 +381,7 @@ namespace Presets
 
 				//fill the group vector with groups to identify the sex of the preset.
 				for (xml_node<>* cat_node = preset_node->first_node("Group"); cat_node; cat_node = cat_node->next_sibling("Group")) {
-					//logger::trace("Adding {} to group list!", cat_node->first_attribute()->value());
+					logger::trace("Adding {} to group list!", cat_node->first_attribute()->value());
 					presetgroups->push_back(cat_node->first_attribute()->value());
 				}
 
@@ -402,7 +402,7 @@ namespace Presets
 					UUNP = true;
 				}
 
-				//logger::trace("{} has entered the outer for loop", *presetname);
+				logger::trace("{} has entered the outer for loop", *presetname);
 				std::string* slidername{ new std::string };
 				std::string* previousslidername{ new std::string("") };
 
@@ -417,10 +417,10 @@ namespace Presets
 					*slidername = slider_node->first_attribute()->value();
 					*size = slider_node->first_attribute("size")->value();
 					auto printable = *slidername;
-					//logger::trace("The slider being looked at is {} and it is {}", printable, *size);
+					logger::trace("The slider being looked at is {} and it is {}", printable, *size);
 					// convert the size to a morphable value (those are -1 to 1.)
 					*sizevalue = std::stoi(slider_node->first_attribute("value")->value()) / 100.0f;
-					//logger::trace("The converted value of that slider is {}", *sizevalue);
+					logger::trace("The converted value of that slider is {}", *sizevalue);
 					//if we detect that a preset is UUNP based, invert the sliders.
 					bool inverted = false;
 					if (UUNP) {
@@ -435,7 +435,7 @@ namespace Presets
 					}
 					// if a pair is found, push it into the sliderset vector as a full struct.
 					if (*slidername == *previousslidername) {
-						//logger::trace("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername, *lastsizevalue, *sizevalue);
+						logger::trace("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername, *lastsizevalue, *sizevalue);
 
 						sliderset->push_back({ *lastsizevalue, *sizevalue, *slidername });
 					}
@@ -444,7 +444,7 @@ namespace Presets
 					// full struct with default values where they belong.
 					else if (*slidername != *previousslidername) {
 						if (!slider_node->next_sibling() || slider_node->next_sibling()->first_attribute()->value() != *slidername) {
-							//logger::trace("slider {} is a singlet", *slidername);
+							logger::trace("slider {} is a singlet", *slidername);
 							if (inverted) {
 								defaultvalue -= 1.0f;
 							}
@@ -463,7 +463,7 @@ namespace Presets
 					*previousslidername = *slidername;
 					*lastSize = *size;
 					*lastsizevalue = *sizevalue;
-					//logger::trace("At the end of pushback we have a slider name of {} and a value of {}", *slidername, *sizevalue);
+					logger::trace("At the end of pushback we have a slider name of {} and a value of {}", *slidername, *sizevalue);
 					// std::cout << " values: " << slidername << ",  " << size << ",  " <<
 					// sizevalue << std::endl;
 				}
@@ -486,7 +486,16 @@ namespace Presets
 				// push the preset into the master list, then erase the sliderset to startagain.
 				bool fail = true;
 				for (std::string item : *presetgroups) {
-					if (item.find("CBBE") != -1 || item.find("3BBB") != -1 || item.find("CBAdvanced") != -1 || (item.find("UNP") != -1)) {
+					//if we find the refit config, load it up.
+					if (item.find("RefitSliders") != -1) {
+						logger::info("Refit sliders found.");
+						auto container = Presets::PresetContainer::GetInstance();
+						container->clothingUnprocessed.sliderlist = *sliderset;
+						container->clothingsliders = *sliderset;
+						fail = false;
+					}
+
+					else if (item.find("CBBE") != -1 || item.find("3BBB") != -1 || item.find("CBAdvanced") != -1 || (item.find("UNP") != -1)) {
 						logger::info("{} has just been ingested into the female master preset list.", *presetname);
 						fail = false;
 						//logger::trace("Female preset found!");
