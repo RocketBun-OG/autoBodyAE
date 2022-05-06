@@ -8,6 +8,47 @@ namespace Bodygen
 		return std::addressof(instance);
 	};
 
+	void Morphman::initClothingSliders()
+	{
+		auto container = Presets::PresetContainer::GetInstance();
+		std::vector<Presets::slider>* clothingsliders;
+		clothingsliders = &container->clothingsliders;
+		// booba
+		clothingsliders->push_back({ 0.0f, 0.0f, "BreastSideShape" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "BreastUnderDepth" });
+		clothingsliders->push_back({ 1.0f, 1.0f, "BreastCleavage" });
+		clothingsliders->push_back({ -0.1f, -0.05f, "BreastGravity2" });
+		clothingsliders->push_back({ -0.2f, -0.35f, "BreastTopSlope" });
+		clothingsliders->push_back({ 0.3f, 0.35f, "BreastsTogether" });
+		clothingsliders->push_back({ -0.05f, -0.05f, "Breasts" });
+		clothingsliders->push_back({ 0.15f, 0.15f, "BreastHeight" });
+
+		// butt
+		clothingsliders->push_back({ 0.0f, 0.0f, "ButtDimples" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "ButtUnderFold" });
+		clothingsliders->push_back({ -0.05f, -0.05f, "AppleCheeks" });
+		clothingsliders->push_back({ -0.05f, -0.05f, "Butt" });
+
+		// torso
+		clothingsliders->push_back({ 0.0f, 0.0f, "Clavicle_v2" });
+		clothingsliders->push_back({ 1.0f, 1.0f, "NavelEven" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "HipCarved" });
+
+		// nipples
+		clothingsliders->push_back({ 0.0f, 0.0f, "NippleDip" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "NippleTip" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "NipplePuffy_v2" });
+		clothingsliders->push_back({ -0.3f, -0.3f, "AreolaSize" });
+		clothingsliders->push_back({ 0.2f, 0.2f, "NipBGone" });
+		//clothingsliders->push_back({ -0.75, -0.75, "NippleManga" });
+		clothingsliders->push_back({ 0.05f, 0.08f, "NippleDistance" });
+		clothingsliders->push_back({ 0.0f, -0.1f, "NippleDown" });
+		//clothingsliders->push_back({ -0.25f, -0.25f, "NipplePerkManga" });
+		clothingsliders->push_back({ 0.0f, 0.0f, "NipplePerkiness" });
+		//logger::trace("clothingsliders is {} elements long right here", clothingsliders->size());
+		container->clothingUnprocessed.sliderlist = *clothingsliders;
+	}
+
 	//the clothing sliders list is un-interpolated, so we need to do that here.
 	Presets::completedbody Morphman::FinishClothing(RE::Actor* a_actor)
 	{
@@ -68,13 +109,13 @@ namespace Bodygen
 		morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 		// prep complete
 
-		a_actor->GetActorBase()->weight = readybody.weight;
-		logger::trace("The weight of the actor is {}", a_actor->GetActorBase()->weight);
-
 		// apply the sliders to the NPC
 		ApplySliderSet(a_actor, readybody, "autoBody");
 
 		//we do this so that clothing morphs can apply properly.
+
+		a_actor->GetActorBase()->weight = readybody.weight;
+		logger::trace("The weight of the actor is {}", a_actor->GetActorBase()->weight);
 
 		// mark the actor as generated, so we don't fuck up and generate them again
 		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody_processed", 1.0f);

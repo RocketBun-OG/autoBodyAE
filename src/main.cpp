@@ -68,7 +68,7 @@ namespace
 				logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
 
 				Presets::Parsing::CheckMorphConfig();
-				//morf->initClothingSliders();
+				morf->initClothingSliders();
 				return;
 			}
 		}
