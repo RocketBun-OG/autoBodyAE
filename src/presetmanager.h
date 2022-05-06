@@ -33,6 +33,7 @@ namespace Presets
 	{
 		std::vector<flattenedslider> nodelist;
 		std::string presetname = "";
+		int weight = 0;
 	};
 
 	struct categorizedList

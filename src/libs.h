@@ -16,6 +16,7 @@
 #	include <spdlog/sinks/msvc_sink.h>
 #	include <string>
 #	include <vector>
+#	include <random>
 
 #	pragma warning(pop)
 

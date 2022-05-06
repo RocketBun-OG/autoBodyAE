@@ -35,9 +35,18 @@ namespace Presets
 	// selects a totally random preset from the list.
 	bodypreset FindRandomPreset(std::vector<bodypreset> list)
 	{
-		//logger::trace("Attempting to pick a random preset.");
-		int index = rand() % list.size();
-		return list[index];
+		logger::trace("Attempting to pick a random preset.");
+
+		//create a random number generator
+		std::random_device random_device;
+		//this uses the mersenne twister engine to generate a random number.
+		std::mt19937 engine{ random_device() };
+
+		//this is the piece that asks for the generator to make a number. Ensures the distribution of numbers is uniform.
+		std::uniform_int_distribution<int> numdist(0, list.size() - 1);
+		logger::trace("the random number generator has produced a number {}", numdist(engine));
+
+		return list[numdist(engine)];
 	}
 
 	//master "can we do shit with this actor" function. Searches through the categories ingested with
@@ -558,6 +567,7 @@ namespace Presets
 			int weightOptions = -1;
 			int weightSpecific = -1;
 			int debugLevel = -1;
+			int refitFactor = -11111111111;
 
 			auto morf = Bodygen::Morphman::GetInstance();
 			logger::trace("reading off values...");
@@ -574,6 +584,7 @@ namespace Presets
 			weightOptions = atoi(configINI.GetValue("Options", "bWeightOptions"));
 			weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific"));
 			debugLevel = atoi(configINI.GetValue("Options", "bDebugLevel"));
+			refitFactor = atoi(configINI.GetValue("Options", "bRefitFactor"));
 
 			// if a toggle comes up as -1, it means it wasn't found in the INI.
 			// if this happens for any value, we throw a critical error.
@@ -665,6 +676,14 @@ namespace Presets
 			case 1:
 				spdlog::set_level(spdlog::level::trace);
 				logger::trace("Debug level set to trace.");
+			}
+
+			switch (refitFactor) {
+			case -11111111111:
+				failureswitch = true;
+				break;
+			default:
+				morf->refitFactor = refitFactor;
 			}
 
 			if (failureswitch)

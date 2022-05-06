@@ -63,9 +63,17 @@ namespace Bodygen
 		clothingUnprocessed = &container->clothingUnprocessed;
 
 		//then interpolate those sliders to the correct value for the target weight, using InterpolateAllValues
-		*clothingmods = InterpolateAllValues(*clothingUnprocessed, weight);
+		*clothingmods = InterpolateAllValues(*clothingUnprocessed, weight, true);
 
-		//then just return the modifiers.
+		//apply modifiers to the clothing morphs based on refit factor, if necessary
+		for (auto& slider : clothingmods->nodelist) {
+			if (morphman->refitFactor != 0) {
+				float percentage = morphman->refitFactor / 100.0f;
+				slider.value = slider.value * percentage;
+			}
+		}
+
+		//then just return the clothing sliders.
 		return *clothingmods;
 	}
 
@@ -103,9 +111,14 @@ namespace Bodygen
 
 		// apply the sliders to the NPC
 		ApplySliderSet(a_actor, readybody, "autoBody");
+
+		//we do this so that clothing morphs can apply properly.
+
+		a_actor->GetActorBase()->weight = readybody.weight;
+		logger::trace("The weight of the actor is {}", a_actor->GetActorBase()->weight);
+
 		// mark the actor as generated, so we don't fuck up and generate them again
 		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody_processed", 1.0f);
-
 		logger::info("Preset [{}] was applied to {}.", readybody.presetname, a_actor->GetName());
 
 		return;
@@ -163,6 +176,6 @@ namespace Bodygen
 	float Morphman::GetWeight(RE::Actor* a_actor)
 	{
 		//logger::trace("getting actor weight.");
-		return a_actor->GetActorBase()->GetWeight();
+		return a_actor->GetWeight();
 	}
 };  // namespace Bodygen
