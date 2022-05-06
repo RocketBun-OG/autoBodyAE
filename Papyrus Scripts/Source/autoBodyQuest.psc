@@ -15,11 +15,7 @@ Actor Property TargetDiscriminate
     EndFunction
 endProperty
 
-int Property PresetKey
-    int Function Get()
-        return 39
-    endFunction
-endProperty
+int Property PresetKey auto
 
 
 Event OnInit()
@@ -29,6 +25,8 @@ Event OnInit()
 
     int femaleSize = FemalePool.Length
     int maleSize = MalePool.Length
+    
+    PresetKey = 39
 
     debug.Notification("autoBody Online! List Size: [F: " + femaleSize + "] [M: " + maleSize + "]")
     OnLoad()
