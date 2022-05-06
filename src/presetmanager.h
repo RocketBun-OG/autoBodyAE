@@ -55,6 +55,8 @@ namespace Presets
 		std::vector<bodypreset> femaleMasterSet;
 		std::vector<bodypreset> maleMasterSet;
 
+		std::vector<bodypreset> femaleBackupSet;
+
 		// master lists of all user-defined categories
 		std::vector<categorizedList> femaleRaceCategorySet;
 		std::vector<categorizedList> femaleFactionCategorySet;
