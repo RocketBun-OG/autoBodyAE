@@ -20,9 +20,9 @@ namespace Presets
 	bodypreset FindPresetByName(std::vector<bodypreset> searchable, std::string name)
 	{
 		logger::trace("entered findpresetbyname");
-		logger::debug("the searchable set has {} elements in it.", searchable.size());
+		//logger::debug("the searchable set has {} elements in it.", searchable.size());
 		for (bodypreset searchitem : searchable) {
-			logger::debug("the items name is {} and the search target is {}", searchitem.name, name);
+			//logger::debug("the items name is {} and the search target is {}", searchitem.name, name);
 			if (searchitem.name == name) {
 				logger::trace("{} was found!", searchitem.name);
 				return searchitem;
@@ -402,7 +402,7 @@ namespace Presets
 					UUNP = true;
 				}
 
-				logger::debug("{} has entered the outer for loop", *presetname);
+				//logger::debug("{} has entered the outer for loop", *presetname);
 				std::string* slidername{ new std::string };
 				std::string* previousslidername{ new std::string("") };
 
@@ -417,10 +417,10 @@ namespace Presets
 					*slidername = slider_node->first_attribute()->value();
 					*size = slider_node->first_attribute("size")->value();
 					auto printable = *slidername;
-					logger::debug("The slider being looked at is {} and it is {}", printable, *size);
+					//logger::debug("The slider being looked at is {} and it is {}", printable, *size);
 					// convert the size to a morphable value (those are -1 to 1.)
 					*sizevalue = std::stoi(slider_node->first_attribute("value")->value()) / 100.0f;
-					logger::debug("The converted value of that slider is {}", *sizevalue);
+					//logger::debug("The converted value of that slider is {}", *sizevalue);
 					//if we detect that a preset is UUNP based, invert the sliders.
 					bool inverted = false;
 					if (UUNP) {
@@ -435,7 +435,7 @@ namespace Presets
 					}
 					// if a pair is found, push it into the sliderset vector as a full struct.
 					if (*slidername == *previousslidername) {
-						logger::debug("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername, *lastsizevalue, *sizevalue);
+						//logger::debug("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername, *lastsizevalue, *sizevalue);
 
 						sliderset->push_back({ *lastsizevalue, *sizevalue, *slidername });
 					}
@@ -444,7 +444,7 @@ namespace Presets
 					// full struct with default values where they belong.
 					else if (*slidername != *previousslidername) {
 						if (!slider_node->next_sibling() || slider_node->next_sibling()->first_attribute()->value() != *slidername) {
-							logger::debug("slider {} is a singlet", *slidername);
+							//logger::debug("slider {} is a singlet", *slidername);
 							if (inverted) {
 								defaultvalue -= 1.0f;
 							}
@@ -463,7 +463,7 @@ namespace Presets
 					*previousslidername = *slidername;
 					*lastSize = *size;
 					*lastsizevalue = *sizevalue;
-					logger::debug("At the end of pushback we have a slider name of {} and a value of {}", *slidername, *sizevalue);
+					//logger::debug("At the end of pushback we have a slider name of {} and a value of {}", *slidername, *sizevalue);
 					// std::cout << " values: " << slidername << ",  " << size << ",  " <<
 					// sizevalue << std::endl;
 				}
@@ -686,10 +686,6 @@ namespace Presets
 			case 1:
 				spdlog::set_level(spdlog::level::trace);
 				logger::trace("Debug level set to trace.");
-				break;
-			case 2:
-				spdlog::set_level(spdlog::level::debug);
-				logger::debug("Debug level set to debug.");
 				break;
 			}
 
