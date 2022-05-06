@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 set(NAME "autoBodyAE")
-set(VERSION 1.3.7)
+set(VERSION 1.4.0)
 set(VR_VERSION 1)
 option(COPY_OUTPUT "copy the output of build operations to the game directory" ON)
 option(BUILD_SKYRIMSSE "Build for Skyrim SSE" OFF) # currently untested

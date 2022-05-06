@@ -557,6 +557,7 @@ namespace Presets
 			int biasamount = -1;
 			int weightOptions = -1;
 			int weightSpecific = -1;
+			int debugLevel = -1;
 
 			auto morf = Bodygen::Morphman::GetInstance();
 			logger::trace("reading off values...");
@@ -572,6 +573,7 @@ namespace Presets
 			biasamount = atoi(configINI.GetValue("Options", "bWeightBiasAmount"));
 			weightOptions = atoi(configINI.GetValue("Options", "bWeightOptions"));
 			weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific"));
+			debugLevel = atoi(configINI.GetValue("Options", "bDebugLevel"));
 
 			// if a toggle comes up as -1, it means it wasn't found in the INI.
 			// if this happens for any value, we throw a critical error.
@@ -651,6 +653,18 @@ namespace Presets
 				break;
 			default:
 				morf->weightSpecific = weightSpecific;
+			}
+
+			switch (debugLevel) {
+			case -1:
+				failureswitch = true;
+				break;
+			case 0:
+				spdlog::set_level(spdlog::level::info);
+				logger::info("Debug level set to info");
+			case 1:
+				spdlog::set_level(spdlog::level::trace);
+				logger::trace("Debug level set to trace.");
 			}
 
 			if (failureswitch)

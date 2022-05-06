@@ -36,7 +36,6 @@ namespace Bodygen
 		int biasamount{ 0 };
 		int weightOptions{ 0 };
 		int weightSpecific{ 0 };
-
 		//other
 		bool clothingInit;
 

@@ -134,6 +134,8 @@ namespace Bodygen
 	// apply or remove clothing sliders from an actor.
 	void Morphman::ProcessClothing(RE::Actor* a_actor, bool unequip, bool safeguard)
 	{
+		auto morphmanager = Bodygen::Morphman::GetInstance();
+
 		if (safeguard) {
 			return;
 		}
@@ -142,11 +144,14 @@ namespace Bodygen
 		if (sexint == 1) {
 			auto modifiers = FinishClothing(a_actor);
 			//logger::trace("Modifiers is {} big", modifiers.nodelist.size());
+
+			//this block will always REMOVE clothing morphs, but only ADD them if clothing toggle is flipped.
+			//This allows for the user to disable the refit function midsave and not wind up with "stuck" morphs.
 			if (unequip) {
 				logger::info("Removing clothing morphs from actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 				morphInterface->ApplyBodyMorphs(a_actor, true);
-			} else {
+			} else if (morphmanager->usingClothes) {
 				logger::info("Applying clothing morphs to actor {}!", a_actor->GetName());
 				morphInterface->ClearBodyMorphKeys(a_actor, "autoBodyClothes");
 				ApplySliderSet(a_actor, modifiers, "autoBodyClothes");
