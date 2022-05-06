@@ -818,7 +818,7 @@ namespace Presets
 			}
 
 			for (int i = 0; i < container->femaleMasterSet.size(); ++i) { logger::trace("{} is contained in the master list.", container->femaleMasterSet[i].name); }
-			for (int i = 0; i < container->femaleBackupSet.size(); ++i) { logger::trace("{} is contained in the master list.", container->femaleBackupSet[i].name); }
+
 			// for each key, parse it into race, sex, faction, or character categories and
 			// pass the associated bodies to their respective lists.
 			for (std::list<CSimpleIniA::Entry>::iterator keylistIter = keylist.begin(); keylistIter != keylist.end(); keylistIter++) {
@@ -866,7 +866,7 @@ namespace Presets
 					raceCategorySet = &container->maleRaceCategorySet;
 					factionCategorySet = &container->maleFactionCategorySet;
 					masterSet = &container->maleMasterSet;
-
+					backupSet = &container->maleBackupSet;
 					parsedlist.sex = "Male";
 
 				} else {
@@ -915,6 +915,7 @@ namespace Presets
 						backupSet = &container->femaleBackupSet;
 					} else {
 						masterSet = &container->maleMasterSet;
+						backupSet = &container->maleBackupSet;
 					}
 					//logger::trace("Sex is Female? {}", matchedNPC->GetSex());
 
