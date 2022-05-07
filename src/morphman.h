@@ -36,6 +36,7 @@ namespace Bodygen
 		int biasamount{ 0 };
 		int weightOptions{ 0 };
 		int weightSpecific{ 0 };
+		int refitFactor{ 0 };
 		//other
 		bool clothingInit;
 
@@ -46,8 +47,6 @@ namespace Bodygen
 		Morphman() = default;
 
 		static Morphman* GetInstance();
-
-		void initClothingSliders();
 
 		Presets::completedbody FinishClothing(RE::Actor* a_actor);
 

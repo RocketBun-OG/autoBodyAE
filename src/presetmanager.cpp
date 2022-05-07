@@ -20,9 +20,9 @@ namespace Presets
 	bodypreset FindPresetByName(std::vector<bodypreset> searchable, std::string name)
 	{
 		logger::trace("entered findpresetbyname");
-		logger::trace("the searchable set has {} elements in it.", searchable.size());
+		//logger::debug("the searchable set has {} elements in it.", searchable.size());
 		for (bodypreset searchitem : searchable) {
-			//logger::trace("the items name is {} and the search target is {}", searchitem.name, name);
+			//logger::debug("the items name is {} and the search target is {}", searchitem.name, name);
 			if (searchitem.name == name) {
 				logger::trace("{} was found!", searchitem.name);
 				return searchitem;
@@ -35,9 +35,18 @@ namespace Presets
 	// selects a totally random preset from the list.
 	bodypreset FindRandomPreset(std::vector<bodypreset> list)
 	{
-		//logger::trace("Attempting to pick a random preset.");
-		int index = rand() % list.size();
-		return list[index];
+		logger::trace("Attempting to pick a random preset.");
+
+		//create a random number generator
+		std::random_device random_device;
+		//this uses the mersenne twister engine to generate a random number.
+		std::mt19937 engine{ random_device() };
+
+		//this is the piece that asks for the generator to make a number. Ensures the distribution of numbers is uniform.
+		std::uniform_int_distribution<int> numdist(0, list.size() - 1);
+		logger::trace("the random number generator has produced a number {}", numdist(engine));
+
+		return list[numdist(engine)];
 	}
 
 	//master "can we do shit with this actor" function. Searches through the categories ingested with
@@ -345,7 +354,7 @@ namespace Presets
 			xml_document<>* preset{ new xml_document };
 			xml_node<>* root_node = NULL;
 
-			// logger::trace("Beginning xml parse...");
+			logger::trace("Beginning xml parse...");
 
 			// suck the xml into the buffer
 			std::ifstream inputFile(filename);
@@ -355,7 +364,7 @@ namespace Presets
 			// parse the buffer
 			preset->parse<0>(&buffer[0]);
 
-			// logger::trace("Buffer has been parsed.");
+			logger::trace("Buffer has been parsed.");
 			//  find the root
 			root_node = preset->first_node("SliderPresets");
 			if (!root_node) {
@@ -372,7 +381,7 @@ namespace Presets
 
 				//fill the group vector with groups to identify the sex of the preset.
 				for (xml_node<>* cat_node = preset_node->first_node("Group"); cat_node; cat_node = cat_node->next_sibling("Group")) {
-					//logger::trace("Adding {} to group list!", cat_node->first_attribute()->value());
+					logger::trace("Adding {} to group list!", cat_node->first_attribute()->value());
 					presetgroups->push_back(cat_node->first_attribute()->value());
 				}
 
@@ -393,7 +402,7 @@ namespace Presets
 					UUNP = true;
 				}
 
-				//logger::trace("{} has entered the outer for loop", *presetname);
+				//logger::debug("{} has entered the outer for loop", *presetname);
 				std::string* slidername{ new std::string };
 				std::string* previousslidername{ new std::string("") };
 
@@ -408,10 +417,10 @@ namespace Presets
 					*slidername = slider_node->first_attribute()->value();
 					*size = slider_node->first_attribute("size")->value();
 					auto printable = *slidername;
-					//logger::trace("The slider being looked at is {} and it is {}", printable, *size);
+					//logger::debug("The slider being looked at is {} and it is {}", printable, *size);
 					// convert the size to a morphable value (those are -1 to 1.)
 					*sizevalue = std::stoi(slider_node->first_attribute("value")->value()) / 100.0f;
-					//logger::trace("The converted value of that slider is {}", *sizevalue);
+					//logger::debug("The converted value of that slider is {}", *sizevalue);
 					//if we detect that a preset is UUNP based, invert the sliders.
 					bool inverted = false;
 					if (UUNP) {
@@ -426,7 +435,7 @@ namespace Presets
 					}
 					// if a pair is found, push it into the sliderset vector as a full struct.
 					if (*slidername == *previousslidername) {
-						//logger::trace("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername, *lastsizevalue, *sizevalue);
+						//logger::debug("{} is a paired slider and is being pushed back with a pair of values of {} and {}", *slidername, *lastsizevalue, *sizevalue);
 
 						sliderset->push_back({ *lastsizevalue, *sizevalue, *slidername });
 					}
@@ -435,7 +444,7 @@ namespace Presets
 					// full struct with default values where they belong.
 					else if (*slidername != *previousslidername) {
 						if (!slider_node->next_sibling() || slider_node->next_sibling()->first_attribute()->value() != *slidername) {
-							//logger::trace("slider {} is a singlet", *slidername);
+							//logger::debug("slider {} is a singlet", *slidername);
 							if (inverted) {
 								defaultvalue -= 1.0f;
 							}
@@ -454,7 +463,7 @@ namespace Presets
 					*previousslidername = *slidername;
 					*lastSize = *size;
 					*lastsizevalue = *sizevalue;
-					//logger::trace("At the end of pushback we have a slider name of {} and a value of {}", *slidername, *sizevalue);
+					//logger::debug("At the end of pushback we have a slider name of {} and a value of {}", *slidername, *sizevalue);
 					// std::cout << " values: " << slidername << ",  " << size << ",  " <<
 					// sizevalue << std::endl;
 				}
@@ -477,7 +486,16 @@ namespace Presets
 				// push the preset into the master list, then erase the sliderset to startagain.
 				bool fail = true;
 				for (std::string item : *presetgroups) {
-					if (item.find("CBBE") != -1 || item.find("3BBB") != -1 || item.find("CBAdvanced") != -1 || (item.find("UNP") != -1)) {
+					//if we find the refit config, load it up.
+					if (item.find("RefitSliders") != -1) {
+						logger::info("Refit sliders found.");
+						auto container = Presets::PresetContainer::GetInstance();
+						container->clothingUnprocessed.sliderlist = *sliderset;
+						container->clothingsliders = *sliderset;
+						fail = false;
+					}
+
+					else if (item.find("CBBE") != -1 || item.find("3BBB") != -1 || item.find("CBAdvanced") != -1 || (item.find("UNP") != -1)) {
 						logger::info("{} has just been ingested into the female master preset list.", *presetname);
 						fail = false;
 						//logger::trace("Female preset found!");
@@ -558,6 +576,7 @@ namespace Presets
 			int weightOptions = -1;
 			int weightSpecific = -1;
 			int debugLevel = -1;
+			int refitFactor = -11111111111;
 
 			auto morf = Bodygen::Morphman::GetInstance();
 			logger::trace("reading off values...");
@@ -574,6 +593,7 @@ namespace Presets
 			weightOptions = atoi(configINI.GetValue("Options", "bWeightOptions"));
 			weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific"));
 			debugLevel = atoi(configINI.GetValue("Options", "bDebugLevel"));
+			refitFactor = atoi(configINI.GetValue("Options", "bRefitFactor"));
 
 			// if a toggle comes up as -1, it means it wasn't found in the INI.
 			// if this happens for any value, we throw a critical error.
@@ -662,9 +682,19 @@ namespace Presets
 			case 0:
 				spdlog::set_level(spdlog::level::info);
 				logger::info("Debug level set to info");
+				break;
 			case 1:
 				spdlog::set_level(spdlog::level::trace);
 				logger::trace("Debug level set to trace.");
+				break;
+			}
+
+			switch (refitFactor) {
+			case -11111111111:
+				failureswitch = true;
+				break;
+			default:
+				morf->refitFactor = refitFactor;
 			}
 
 			if (failureswitch)
@@ -719,7 +749,9 @@ namespace Presets
 				std::string value = morphsINI.GetValue("", keylistIter->pItem);
 				logger::trace("the current category is {}", name);
 				std::vector<Presets::bodypreset>* oldmaster{ new std::vector<Presets::bodypreset> };
+				std::vector<Presets::bodypreset>* backmaster{ new std::vector<Presets::bodypreset> };
 				std::vector<Presets::bodypreset> newbodies;
+				std::vector<Presets::bodypreset> backupbodies;
 
 				std::vector<std::string> masterbodies = explode(value, '|');
 				if (masterbodies.size() < 1) {
@@ -734,7 +766,7 @@ namespace Presets
 					if (contains(categories, { "Female" })) {
 						femaleMasterReplaced = true;
 						oldmaster = &container->femaleMasterSet;
-
+						backmaster = &container->femaleBackupSet;
 					} else if (contains(categories, { "Male" })) {
 						maleMasterReplaced = true;
 						oldmaster = &container->maleMasterSet;
@@ -744,6 +776,9 @@ namespace Presets
 					bool notempty = false;
 					//for each body in the master set
 					for (int i = 0; i < oldmaster->size(); ++i) {
+						//first, back up the body.
+						backupbodies.push_back(oldmaster->at(i));
+
 						//logger::trace("{} is the preset we are currently looking at, with an i of {}.", oldmaster->at(i).name, i);
 						bool match = false;
 						//for each body in the config
@@ -777,11 +812,13 @@ namespace Presets
 							logger::info("Male master list has been redefined in morphs.ini. New size is {}", newbodies.size());
 						}
 						*oldmaster = newbodies;
+						*backmaster = backupbodies;
 					}
 				}
 			}
 
 			for (int i = 0; i < container->femaleMasterSet.size(); ++i) { logger::trace("{} is contained in the master list.", container->femaleMasterSet[i].name); }
+
 			// for each key, parse it into race, sex, faction, or character categories and
 			// pass the associated bodies to their respective lists.
 			for (std::list<CSimpleIniA::Entry>::iterator keylistIter = keylist.begin(); keylistIter != keylist.end(); keylistIter++) {
@@ -794,6 +831,7 @@ namespace Presets
 				std::vector<categorizedList>* raceCategorySet{ new std::vector<categorizedList> };
 				std::vector<categorizedList>* factionCategorySet{ new std::vector<categorizedList> };
 				std::vector<bodypreset>* masterSet{ new std::vector<bodypreset> };
+				std::vector<bodypreset>* backupSet{ new std::vector<bodypreset> };
 
 				characterCategorySet = &container->characterCategorySet;
 
@@ -818,6 +856,7 @@ namespace Presets
 					raceCategorySet = &container->femaleRaceCategorySet;
 					factionCategorySet = &container->femaleFactionCategorySet;
 					masterSet = &container->femaleMasterSet;
+					backupSet = &container->femaleBackupSet;
 					parsedlist.sex = "Female";
 
 				}
@@ -827,7 +866,7 @@ namespace Presets
 					raceCategorySet = &container->maleRaceCategorySet;
 					factionCategorySet = &container->maleFactionCategorySet;
 					masterSet = &container->maleMasterSet;
-
+					backupSet = &container->maleBackupSet;
 					parsedlist.sex = "Male";
 
 				} else {
@@ -873,8 +912,10 @@ namespace Presets
 					//if that NPC is female, align masterSet with the female master set. Otherwise, align it with the male master set.
 					if (matchedNPC->GetSex() == true) {
 						masterSet = &container->femaleMasterSet;
+						backupSet = &container->femaleBackupSet;
 					} else {
 						masterSet = &container->maleMasterSet;
+						backupSet = &container->maleBackupSet;
 					}
 					//logger::trace("Sex is Female? {}", matchedNPC->GetSex());
 
@@ -921,6 +962,15 @@ namespace Presets
 						parsedlist.categorizedSet.push_back(bodysliders);
 
 						logger::trace("{} was identified as a preset for {}", item, name);
+					} else {
+						bodysliders = notfound;
+						bodysliders = FindPresetByName(*backupSet, item);
+						if (bodysliders != notfound) {
+							notempty = true;
+							parsedlist.categorizedSet.push_back(bodysliders);
+
+							logger::trace("{} was identified as a preset for {} in the backup set", item, name);
+						}
 					}
 				}
 

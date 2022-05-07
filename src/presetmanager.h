@@ -33,6 +33,7 @@ namespace Presets
 	{
 		std::vector<flattenedslider> nodelist;
 		std::string presetname = "";
+		int weight = 0;
 	};
 
 	struct categorizedList
@@ -54,6 +55,8 @@ namespace Presets
 		std::vector<bodypreset> femaleMasterSet;
 		std::vector<bodypreset> maleMasterSet;
 
+		std::vector<bodypreset> femaleBackupSet;
+		std::vector<bodypreset> maleBackupSet;
 		// master lists of all user-defined categories
 		std::vector<categorizedList> femaleRaceCategorySet;
 		std::vector<categorizedList> femaleFactionCategorySet;

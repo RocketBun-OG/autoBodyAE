@@ -39,6 +39,10 @@ namespace PapyrusBridging
 
 				//then finally apply the preset.
 				logger::trace("{}, the selected preset, is now being applied.", readybody.presetname);
+
+				a_actor->GetActorBase()->weight = readybody.weight;
+				logger::trace("weight set to {}", readybody.weight);
+
 				morphman->ApplySliderSet(a_actor, readybody, "autoBody");
 				return;
 			}
