@@ -78,6 +78,17 @@ namespace Event
 
 					if (armor) {
 						safeguard = false;
+
+						//shoutout to my SPID lovers out there.
+						if (morphman->usingExclusion) {
+							logger::trace("The keyword we are looking for is {}", morphman->RefitExclusionKeyword);
+							auto keywordBan = (RE::TESForm::LookupByEditorID<RE::BGSKeyword>("ArmorClothing"));
+							auto keywordForm = (RE::TESForm::LookupByEditorID(morphman->RefitExclusionKeyword));
+							if (keywordBan || keywordForm) {
+								logger::trace("keyword exists, my dude!");
+								safeguard = true;
+							}
+						}
 					}
 
 					if (!a_event->equipped) {

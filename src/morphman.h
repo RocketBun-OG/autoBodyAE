@@ -39,6 +39,8 @@ namespace Bodygen
 		int refitFactor{ 0 };
 		//other
 		bool clothingInit;
+		bool usingExclusion = false;
+		std::string RefitExclusionKeyword;
 
 		std::vector<completedcharacter> actorList;
 
