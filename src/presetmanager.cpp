@@ -44,7 +44,6 @@ namespace Presets
 
 		//this is the piece that asks for the generator to make a number. Ensures the distribution of numbers is uniform.
 		std::uniform_int_distribution<int> numdist(0, list.size() - 1);
-		logger::trace("the random number generator has produced a number {}", numdist(engine));
 
 		return list[numdist(engine)];
 	}

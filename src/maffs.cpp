@@ -53,7 +53,6 @@ Presets::completedbody InterpolateAllValues(Presets::bodypreset body, float weig
 
 	// flatten all sliders into their final values
 	for (Presets::slider interp : body.sliderlist) {
-		float floatyweight = weight;
 		Presets::flattenedslider pushin{ InterpolateSliderValue(interp, weight), interp.name };
 		out.nodelist.push_back(pushin);
 	}
