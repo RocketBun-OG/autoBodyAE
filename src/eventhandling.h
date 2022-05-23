@@ -78,6 +78,19 @@ namespace Event
 
 					if (armor) {
 						safeguard = false;
+
+						// //shoutout to my SPID lovers out there.
+						// if (morphman->usingExclusion) {
+						// 	logger::trace("The keyword we are looking for is {}", morphman->RefitExclusionKeyword);
+						// 	//we have to convert the string to a char array here or else itll break.
+						// 	auto key = std::string(morphman->RefitExclusionKeyword);
+						// 	auto keywordBan = (RE::TESForm::LookupByEditorID<RE::BGSKeyword>(key));
+
+						// 	if (armor->HasKeyword(keywordBan)) {
+						// 		logger::trace("Refit exclusion keyword detected. Skipping refit.");
+						// 		safeguard = true;
+						// 	}
+						// }
 					}
 
 					if (!a_event->equipped) {

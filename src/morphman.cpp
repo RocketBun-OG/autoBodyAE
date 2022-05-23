@@ -14,6 +14,14 @@ namespace Bodygen
 		auto weight = GetWeight(a_actor);
 		auto container = Presets::PresetContainer::GetInstance();
 		auto morphman = Bodygen::Morphman::GetInstance();
+
+		//if we've already applied a preset to them, we need to pay attention to what their simulated weight is.
+		if (morphInterface->HasBodyMorph(a_actor, "autoBody_weight", "autoBody_weight")) {
+			logger::trace("Grabbing the simulated weight from storage for actor {}...", a_actor->GetName());
+			weight = morphInterface->GetMorph(a_actor, "autoBody_weight", "autoBody_weight");
+			logger::trace("Simulated weight is {}", weight);
+		}
+
 		//jank
 		Presets::bodypreset* clothingUnprocessed{ new Presets::bodypreset };
 		Presets::completedbody* clothingmods{ new Presets::completedbody };
@@ -68,13 +76,13 @@ namespace Bodygen
 		morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 		// prep complete
 
-		a_actor->GetActorBase()->weight = readybody.weight;
-		logger::trace("The weight of the actor is {}", a_actor->GetActorBase()->weight);
+		//flag the actor with a morph containing their simulated weight.
+		morphInterface->SetMorph(a_actor, "autoBody_weight", "autoBody_weight", readybody.weight);
+
+		logger::trace("The simulated weight of the actor is {}", morphInterface->GetMorph(a_actor, "autoBody_weight", "autoBody_weight"));
 
 		// apply the sliders to the NPC
 		ApplySliderSet(a_actor, readybody, "autoBody");
-
-		//we do this so that clothing morphs can apply properly.
 
 		// mark the actor as generated, so we don't fuck up and generate them again
 		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody_processed", 1.0f);

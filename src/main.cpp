@@ -20,7 +20,7 @@ namespace
 		auto morf = Bodygen::Morphman::GetInstance();
 		switch (a_message->type) {
 		// we set this messaging interface up so we can talk to SKEE
-		case SKSE::MessagingInterface::kPostLoad:
+		case SKSE::MessagingInterface::kPostPostLoad:
 			{
 				SKEE::InterfaceExchangeMessage message;
 				auto SKSEinterface = SKSE::GetMessagingInterface();

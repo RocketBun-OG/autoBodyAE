@@ -44,7 +44,6 @@ namespace Presets
 
 		//this is the piece that asks for the generator to make a number. Ensures the distribution of numbers is uniform.
 		std::uniform_int_distribution<int> numdist(0, list.size() - 1);
-		logger::trace("the random number generator has produced a number {}", numdist(engine));
 
 		return list[numdist(engine)];
 	}
@@ -577,7 +576,7 @@ namespace Presets
 			int weightSpecific = -1;
 			int debugLevel = -1;
 			int refitFactor = -11111111111;
-
+			std::string refitExclusion = "";
 			auto morf = Bodygen::Morphman::GetInstance();
 			logger::trace("reading off values...");
 			// read our toggles and pass them to morphman
@@ -594,6 +593,7 @@ namespace Presets
 			weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific"));
 			debugLevel = atoi(configINI.GetValue("Options", "bDebugLevel"));
 			refitFactor = atoi(configINI.GetValue("Options", "bRefitFactor"));
+			refitExclusion = configINI.GetValue("Options", "bRefitExclusionKeyword");
 
 			// if a toggle comes up as -1, it means it wasn't found in the INI.
 			// if this happens for any value, we throw a critical error.
@@ -695,6 +695,12 @@ namespace Presets
 				break;
 			default:
 				morf->refitFactor = refitFactor;
+			}
+
+			if (refitExclusion != "") {
+				logger::trace("Refit exclusion keyword found. Setting exclusion keyword to {}", refitExclusion);
+				morf->usingExclusion = true;
+				morf->RefitExclusionKeyword = refitExclusion;
 			}
 
 			if (failureswitch)
