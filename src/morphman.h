@@ -40,7 +40,7 @@ namespace Bodygen
 		//other
 		bool clothingInit;
 		bool usingExclusion = false;
-		std::string RefitExclusionKeyword;
+		//std::string RefitExclusionKeyword;
 
 		std::vector<completedcharacter> actorList;
 
