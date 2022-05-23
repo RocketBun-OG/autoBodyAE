@@ -593,7 +593,7 @@ namespace Presets
 			weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific"));
 			debugLevel = atoi(configINI.GetValue("Options", "bDebugLevel"));
 			refitFactor = atoi(configINI.GetValue("Options", "bRefitFactor"));
-			refitExclusion = configINI.GetValue("Options", "bRefitExclusionKeyword");
+			// refitExclusion = configINI.GetValue("Options", "bRefitExclusionKeyword");
 
 			// if a toggle comes up as -1, it means it wasn't found in the INI.
 			// if this happens for any value, we throw a critical error.
@@ -697,11 +697,11 @@ namespace Presets
 				morf->refitFactor = refitFactor;
 			}
 
-			if (refitExclusion != "") {
-				logger::trace("Refit exclusion keyword found. Setting exclusion keyword to {}", refitExclusion);
-				morf->usingExclusion = true;
-				morf->RefitExclusionKeyword = refitExclusion;
-			}
+			// if (refitExclusion != "") {
+			// 	logger::trace("Refit exclusion keyword found. Setting exclusion keyword to {}", refitExclusion);
+			// 	morf->usingExclusion = true;
+			// 	morf->RefitExclusionKeyword = refitExclusion;
+			// }
 
 			if (failureswitch)
 				logger::critical("The INI is missing values! Please redownload it.");
