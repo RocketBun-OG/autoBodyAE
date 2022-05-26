@@ -34,18 +34,18 @@ Presets::completedbody InterpolateAllValues(Presets::bodypreset body, float weig
 			break;
 		case 1:
 			//logger::trace("Using random weight.");
-			weight = numdist(engine);
+			weight = (float) numdist(engine);
 			//logger::trace("Random number selected was {}", weight);
 			break;
 		case 2:
 			//logger::trace("Using specific weight of {}", morphman->weightSpecific);
-			weight = morphman->weightSpecific;
+			weight = (float) morphman->weightSpecific;
 			//logger::trace("Specific weight is {}", weight);
 			break;
 		}
 		//if weightbias is enabled, tune the weight value by that bias amount before flattening the sliders.
 		if (morphman->enableWeightBias) {
-			weight += morphman->biasamount;
+			weight += (float) morphman->biasamount;
 		}
 	}
 
@@ -59,7 +59,7 @@ Presets::completedbody InterpolateAllValues(Presets::bodypreset body, float weig
 
 	// keep track of what preset we just grabbed, and the weight we generated.
 	out.presetname = body.name;
-	out.weight = weight;
+	out.weight = (int) weight;
 	logger::trace("The weight generated was {}", weight);
 	// logger::info("Preset {} has been interpolated! Ready for application.", body.name);
 

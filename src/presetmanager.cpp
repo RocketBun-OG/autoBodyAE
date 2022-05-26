@@ -575,7 +575,7 @@ namespace Presets
 			int weightOptions = -1;
 			int weightSpecific = -1;
 			int debugLevel = -1;
-			int refitFactor = -11111111111;
+			int refitFactor = -1111111111;
 			std::string refitExclusion = "";
 			auto morf = Bodygen::Morphman::GetInstance();
 			logger::trace("reading off values...");
@@ -843,7 +843,7 @@ namespace Presets
 
 				std::string name = keylistIter->pItem;
 
-				size_t eraseamount;
+				size_t eraseamount = 0;
 
 				categorizedList parsedlist;
 
@@ -879,7 +879,7 @@ namespace Presets
 					// if there's no sex value, it must be a character ID
 					character = true;
 
-					RE::Actor* IDOwner;
+					RE::Actor* IDOwner = nullptr;
 
 					std::string stringID;
 					std::string owningMod;
@@ -916,7 +916,7 @@ namespace Presets
 					RE::TESNPC* matchedNPC = datahandler->LookupForm<RE::TESNPC>(hexnumber, owningMod);
 
 					//if that NPC is female, align masterSet with the female master set. Otherwise, align it with the male master set.
-					if (matchedNPC->GetSex() == true) {
+					if (matchedNPC->GetSex() == RE::SEX::kFemale) {
 						masterSet = &container->femaleMasterSet;
 						backupSet = &container->femaleBackupSet;
 					} else {
