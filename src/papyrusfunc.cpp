@@ -14,7 +14,7 @@ namespace PapyrusBridging
 	void ApplyPresetByName(RE::StaticFunctionTag*, RE::Actor* a_actor, std::string presetname)
 	{
 		// logger::trace("ApplyPresetByName was called from a script!");
-
+		auto actor_name = a_actor->GetName();
 		//first get the morph manager.
 		auto morphman = Bodygen::Morphman::GetInstance();
 		std::vector<Presets::bodypreset> list;
@@ -38,12 +38,12 @@ namespace PapyrusBridging
 				//then wipe any previous preset AutoBody has applied to them.
 				morphman->morphInterface->ClearBodyMorphKeys(a_actor, "autoBody");
 
-				//then finally apply the preset.
-				logger::trace("{}, the selected preset, is now being applied.", readybody.presetname);
+				//then finally apply the preset.				
+				logger::trace("{}, the selected preset, is now being applied to {}.", readybody.presetname, actor_name);
 
 				morphman->morphInterface->SetMorph(a_actor, "autoBody_weight", "autoBody_weight", readybody.weight);
 
-				logger::trace("The simulated weight of the actor is {}", morphman->morphInterface->GetMorph(a_actor, "autoBody_weight", "autoBody_weight"));
+				logger::trace("The simulated weight of the {} is {}", actor_name, morphman->morphInterface->GetMorph(a_actor, "autoBody_weight", "autoBody_weight"));
 
 				morphman->ApplySliderSet(a_actor, readybody, "autoBody");
 				return;
