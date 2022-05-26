@@ -12,7 +12,7 @@ event OnPageReset(string page)
     
     if(page == "General Options" || page == "")
         AddHeaderOption("Feature Tweaks")
-        AddToggleOptionST("BackupPlayer", "Use Raw Master For Player", ABAEBackupPlayer.GetValue() as int)
+
         
         AddHeaderOption("Keybinds")
         AddKeyMapOptionST("MenuBind", "In-Game Menu Keybind", MainScript.PresetKey)
@@ -59,23 +59,5 @@ State ModBind
         SetKeyMapOptionValueST(MainScript.ModifierKey)
 
         MainScript.RegisterForKey(MainScript.ModifierKey)
-    endEvent
-EndState
-
-State BackupPlayer
-    Event OnHighlightST()
-		SetInfoText("Use the true master preset pool for the player, instead of the one defined inside morphs.ini")
-		
-	EndEvent
-
-    Event OnSelectST()
-        if (ABAEBackupPlayer.GetValue() as int == 0)
-            ABAEBackupPlayer.SetValue(1)
-            SetToggleOptionValueST(1)
-        else
-            ABAEBackupPlayer.SetValue(0)
-            SetToggleOptionValueST(0)
-        endif
-        
     endEvent
 EndState

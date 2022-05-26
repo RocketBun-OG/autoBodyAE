@@ -69,14 +69,14 @@ Function ShowMenu(Actor akActor)
         if (Input.IsKeyPressed(ModifierKey))
             presets = autoBodyUtils.GetBackupMasterPool(false)
         Else
-            presets = autoBodyUtils.GetMasterPresetPool(false)
+            presets = autoBodyUtils.GetActorPresetPool(akActor)
         endif
     ;if female
     else
         if (Input.IsKeyPressed(ModifierKey))
             presets = autoBodyUtils.GetBackupMasterPool(true)
         Else
-            presets = autoBodyUtils.GetMasterPresetPool(true)
+            presets = autoBodyUtils.GetActorPresetPool(akActor)
         endif
     endif
 

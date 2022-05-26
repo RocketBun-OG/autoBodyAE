@@ -64,6 +64,7 @@ namespace
 				auto presetcontainer = Presets::PresetContainer::GetInstance();
 
 				Presets::Parsing::ParseAllInFolder(path, &presetcontainer->femaleMasterSet, &presetcontainer->maleMasterSet);
+				Presets::Parsing::ParseAllInFolder(path, &presetcontainer->femaleBackupSet, &presetcontainer->maleBackupSet);
 				logger::info("{} body presets were loaded into the female master list.", presetcontainer->femaleMasterSet.size());
 				logger::info("{} body presets were loaded into the male master list.", presetcontainer->maleMasterSet.size());
 

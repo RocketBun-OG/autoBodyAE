@@ -30,6 +30,7 @@ namespace PapyrusBridging
 
 		//now sift through the master list we just selected and try to find the preset.
 		for (Presets::bodypreset item : list) {
+			logger::trace("Checking {}", item.name);
 			if (item.name == presetname) {
 				//if we find a match, set it up to be applied by interpolating it to the correct weight value (whatever that is, based on the user's settings).
 				Presets::completedbody readybody = InterpolateAllValues(item, morphman->GetWeight(a_actor));
