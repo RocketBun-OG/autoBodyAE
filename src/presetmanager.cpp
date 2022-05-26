@@ -1007,7 +1007,7 @@ namespace Presets
 				}
 				//or, if there were no entries in bodylist that matched a preset in the master list, that line of the ini is ignored.
 				else {
-					logger::error("{} has no valid presets! This category will be ignored.", name);
+					logger::error("{} has no valid presets, or is the player! This category will be ignored.", name);
 				}
 			}
 		}

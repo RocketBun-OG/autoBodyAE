@@ -1,5 +1,7 @@
 ScriptName autoBodyQuest extends Quest
 
+autoBodyMCM Property MCM_Menu Auto
+GlobalVariable Property ABAEBackupPlayer Auto
 Actor PlayerRef
 
 Actor Property TargetDiscriminate
@@ -16,8 +18,8 @@ Actor Property TargetDiscriminate
 endProperty
 
 int Property PresetKey auto
-
-
+int Property ModifierKey auto
+bool Property ModifierOn auto
 Event OnInit()
     PlayerRef = Game.GetPlayer()
     String[] FemalePool = autoBodyUtils.GetMasterPresetPool(true)
@@ -27,7 +29,7 @@ Event OnInit()
     int maleSize = MalePool.Length
     
     PresetKey = 39
-
+    ModifierKey = 29
     debug.Notification("autoBody Online! List Size: [F: " + femaleSize + "] [M: " + maleSize + "]")
     OnLoad()
 
@@ -42,10 +44,13 @@ Event OnGameLoad()
 EndEvent
 
 Event OnKeyDown(int KeyPress)
+
     if KeyPress == PresetKey
         ShowMenu(TargetDiscriminate)
     endif
 endEvent
+
+
 
 Function ShowMenu(Actor akActor)
     Debug.Notification("Editing " + akActor.GetDisplayName())
@@ -58,11 +63,23 @@ Function ShowMenu(Actor akActor)
     
     ActorBase akBase = akActor.GetActorBase()
     String[] presets
+
+    ;if male
     if (akBase.GetSex() == 0)
-         presets = autoBodyUtils.GetMasterPresetPool(false)
-    elseif (akBase.GetSex() == 1)
-         presets = autoBodyUtils.GetMasterPresetPool(true)
+        if (Input.IsKeyPressed(ModifierKey))
+            presets = autoBodyUtils.GetBackupMasterPool(false)
+        Else
+            presets = autoBodyUtils.GetMasterPresetPool(false)
+        endif
+    ;if female
+    else
+        if (Input.IsKeyPressed(ModifierKey))
+            presets = autoBodyUtils.GetBackupMasterPool(true)
+        Else
+            presets = autoBodyUtils.GetMasterPresetPool(true)
+        endif
     endif
+
 
     int len = presets.Length
     

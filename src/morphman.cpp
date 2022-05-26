@@ -78,14 +78,14 @@ namespace Bodygen
 
 		//flag the actor with a morph containing their simulated weight.
 		morphInterface->SetMorph(a_actor, "autoBody_weight", "autoBody_weight", readybody.weight);
-
+		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody_processed", 1.0f);
 		logger::trace("The simulated weight of the actor is {}", morphInterface->GetMorph(a_actor, "autoBody_weight", "autoBody_weight"));
 
 		// apply the sliders to the NPC
 		ApplySliderSet(a_actor, readybody, "autoBody");
 
 		// mark the actor as generated, so we don't fuck up and generate them again
-		morphInterface->SetMorph(a_actor, "autoBody_processed", "autoBody_processed", 1.0f);
+
 		logger::info("Preset [{}] was applied to {}.", readybody.presetname, a_actor->GetName());
 
 		return;

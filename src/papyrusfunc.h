@@ -14,6 +14,8 @@ namespace PapyrusBridging
 
 	auto GetMasterPresetPool(RE::StaticFunctionTag*, bool female);
 
+	auto GetBackupMasterPool(RE::StaticFunctionTag*, bool female);
+
 	bool GetActorGenerated(RE::StaticFunctionTag*, RE::Actor* a_actor);
 
 	void ClearAllMorphs(RE::StaticFunctionTag*, RE::Actor* a_actor);

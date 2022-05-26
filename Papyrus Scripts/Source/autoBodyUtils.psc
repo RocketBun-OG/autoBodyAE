@@ -10,6 +10,8 @@ String[] Function GetActorPresetPool(Actor a_actor) Global Native
 
 String[] Function GetMasterPresetPool(bool female) Global Native
 
+String[] Function GetBackupMasterPool(bool female) Global Native
+
 bool Function GetActorGenerated(Actor a_actor) Global Native
 
 Function ClearAllMorphs(Actor a_acor) Global Native
