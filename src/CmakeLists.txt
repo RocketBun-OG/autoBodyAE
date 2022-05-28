@@ -12,22 +12,23 @@ set(SOURCE_FILES
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})
 
-set(VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/Plugin.h")
+set(VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/version.rc")
 configure_file(
-	"${ROOT_DIR}/cmake/Plugin.h.in"
+	"${ROOT_DIR}/cmake/version.rc.in"
 	"${VERSION_HEADER}"
 	@ONLY
 )
 
 source_group("src" FILES "${VERSION_HEADER}")
 
-configure_file(
-	"${ROOT_DIR}/cmake/version.rc.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/version.rc"
-	@ONLY
-)
 
-add_library("${PROJECT_NAME}" SHARED ${SOURCE_FILES})
+#CommonlibSSE-NG build steps 
+
+find_package(CommonLibSSE CONFIG REQUIRED)
+
+add_commonlibsse_plugin("${PROJECT_NAME}" SOURCES ${SOURCE_FILES})
+
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS "${PROJECT_NAME}")
 
 target_compile_features(
 	"${PROJECT_NAME}"
@@ -42,7 +43,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 			"/sdl"	# Enable Additional Security Checks
 			"/utf-8"	# Set Source and Executable character sets to UTF-8
 			"/Zi"	# Debug Information Format
-
 			"/permissive-"	# Standards conformance
 			"/Zc:preprocessor"	# Enable preprocessor conformance mode
 
@@ -65,22 +65,6 @@ target_include_directories(
 	PRIVATE
 		"${CMAKE_CURRENT_BINARY_DIR}/src"
 		"${SOURCE_DIR}"
-)
-
-
-if (DEFINED CommonLibPath AND NOT ${CommonLibPath} STREQUAL "" AND IS_DIRECTORY ${CommonLibPath})
-	add_subdirectory(${CommonLibPath} ${CommonLibName})
-else ()
-	message(
-		FATAL_ERROR
-		"Variable ${CommonLibName}Path is not set."
-	)
-endif()
-
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PRIVATE
-		${CommonLibName}::${CommonLibName}
 )
 
 target_precompile_headers(

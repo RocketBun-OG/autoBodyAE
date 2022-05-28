@@ -993,6 +993,7 @@ namespace Presets
 					else if (race) {
 						logger::info("{} is a valid racial category and will be used.", name);
 						raceCategorySet->push_back(parsedlist);
+						logger::trace("push_back succeeded.");
 					}
 
 					// if it's a faction preset, it goes into the faction list.

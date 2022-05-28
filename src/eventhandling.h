@@ -22,6 +22,7 @@ namespace Event
 
 			RE::Actor* actor = a_event->objectInitialized->As<RE::Actor>();
 			if (actor) {
+				logger::trace("attempting generation of an actor.");
 				Presets::HandleGeneration(actor, false);
 			}
 			return RE::BSEventNotifyControl::kContinue;
@@ -50,6 +51,7 @@ namespace Event
 
 		virtual RE::BSEventNotifyControl ProcessEvent(const RE::TESEquipEvent* a_event, RE::BSTEventSource<RE::TESEquipEvent>*)
 		{
+			logger::trace("Attempting processing clothes morphs.");
 			auto morphman = Bodygen::Morphman::GetInstance();
 
 			auto actor = a_event->actor->As<RE::Actor>();

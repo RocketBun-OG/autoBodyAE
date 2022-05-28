@@ -1,11 +1,5 @@
 {
   "name": "autobodyae",
-  "version-string": "1.3.1",
-  "dependencies": [
-    "boost-stl-interfaces",
-    "rsm-binary-io",
-    "spdlog",
-	  "simpleini",
-	  "rapidxml"
-  ]
+  "version-string": "2.0.0",
+  "dependencies": ["commonlibsse-ng", "simpleini", "rapidxml"]
 }

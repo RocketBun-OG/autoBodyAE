@@ -39,6 +39,5 @@ namespace util
 #	ifdef GetForm
 #		undef GetForm
 #	endif
-#	include "Plugin.h"
 
 #endif
