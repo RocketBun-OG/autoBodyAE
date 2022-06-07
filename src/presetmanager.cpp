@@ -898,6 +898,10 @@ namespace Presets
 					//then convert the hexadecimal string in the INI into a uint32_t, as this is how skyrim sees these IDs internally.
 					uint32_t hexnumber;
 					sscanf_s(stringID.c_str(), "%x", &hexnumber);
+					if (hexnumber == 7 && owningMod == "Skyrim.esm") {
+						logger::error("The player cannot be placed in morphs.ini. Ignoring.");
+						continue;
+					}
 
 					auto datahandler = RE::TESDataHandler::GetSingleton();
 
@@ -940,7 +944,7 @@ namespace Presets
 				//if its not a race, and not a character, then its either a faction, a master set, or malformed. This block checks for all three.
 				else if (!character) {
 					if (categories.size() == 3) {
-						//faction is always the third element in the list when formatted correctly
+						//faction is always the third element in the list when formatted correctlyblank
 						faction = true;
 						parsedlist.faction = categories[2];
 						logger::trace("Faction is {}", categories[2]);
