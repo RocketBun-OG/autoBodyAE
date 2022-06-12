@@ -560,125 +560,55 @@ namespace Presets
 				logger::info("Now reading autoBodyConfig.ini...");
 			}
 
-			bool failureswitch = false;
-			//features
-			int RaceToggle = -1;
-			int FactionToggle = -1;
-			int ClothesToggle = -1;
-
-			int LazyInstall = -1;
-
-			//options
-			int FactionPriority = -1;
-			int WeightBias = -1;
-			int biasamount = -1;
-			int weightOptions = -1;
-			int weightSpecific = -1;
-			int debugLevel = -1;
-			int refitFactor = -1111111111;
 			std::string refitExclusion = "";
+
 			auto morf = Bodygen::Morphman::GetInstance();
 			logger::trace("reading off values...");
-			// read our toggles and pass them to morphman
-			RaceToggle = atoi(configINI.GetValue("Features", "bEnableRaceBodies"));
-			FactionToggle = atoi(configINI.GetValue("Features", "bEnableFactionBodies"));
-			ClothesToggle = atoi(configINI.GetValue("Features", "bEnableClothingRefit"));
+			// read our toggles and store them in variables
+			//if any key isnt found, it is filled with a default value instead.
+			int RaceToggle = atoi(configINI.GetValue("Features", "bEnableRaceBodies", "1"));
+			int FactionToggle = atoi(configINI.GetValue("Features", "bEnableFactionBodies", "1"));
+			int ClothesToggle = atoi(configINI.GetValue("Features", "bEnableClothingRefit", "1"));
 
-			LazyInstall = atoi(configINI.GetValue("Features", "bEnableLazyInstall"));
+			int LazyInstall = atoi(configINI.GetValue("Features", "bEnableLazyInstall", "1"));
 
-			FactionPriority = atoi(configINI.GetValue("Options", "bFactionGenPriority"));
-			WeightBias = atoi(configINI.GetValue("Options", "bEnableWeightBias"));
-			biasamount = atoi(configINI.GetValue("Options", "bWeightBiasAmount"));
-			weightOptions = atoi(configINI.GetValue("Options", "bWeightOptions"));
-			weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific"));
-			debugLevel = atoi(configINI.GetValue("Options", "bDebugLevel"));
-			refitFactor = atoi(configINI.GetValue("Options", "bRefitFactor"));
+			int FactionPriority = atoi(configINI.GetValue("Options", "bFactionGenPriority", "1"));
+			int WeightBias = atoi(configINI.GetValue("Options", "bEnableWeightBias", "0"));
+			int biasamount = atoi(configINI.GetValue("Options", "bWeightBiasAmount", "0"));
+			int weightOptions = atoi(configINI.GetValue("Options", "bWeightOptions", "1"));
+			int weightSpecific = atoi(configINI.GetValue("Options", "bWeightSpecific", "0"));
+			int debugLevel = atoi(configINI.GetValue("Options", "bDebugLevel", "0"));
+			int refitFactor = atoi(configINI.GetValue("Options", "bRefitFactor", "0"));
 			// refitExclusion = configINI.GetValue("Options", "bRefitExclusionKeyword");
 
-			// if a toggle comes up as -1, it means it wasn't found in the INI.
-			// if this happens for any value, we throw a critical error.
+			//pass the key values into the morph manager for use by the mod.
 			logger::trace("Values read in!");
-			switch (RaceToggle) {
-			case -1:
-				failureswitch = true;
-				break;
-			default:
+			morf->usingRace = RaceToggle;
+			morf->usingFaction = FactionToggle;
+			morf->usingClothes = ClothesToggle;
 
-				morf->usingRace = RaceToggle;
+			morf->lazyInstall = LazyInstall;
+			// if the lazy install was toggled on, just read the presets from the
+			// calientetools master folder. Otherwise, read from our mod folder.
+			if (morf->lazyInstall) {
+				presetPath = "Data\\CalienteTools\\BodySlide\\SliderPresets";
+			} else {
+				presetPath = "Data\\autoBody\\Presets";
 			}
 
-			switch (FactionToggle) {
-			case -1:
-				failureswitch = true;
-				break;
-			default:
-
-				morf->usingFaction = FactionToggle;
-			}
-
-			switch (ClothesToggle) {
-			case -1:
-				failureswitch = true;
-				break;
-			default:
-
-				morf->usingClothes = ClothesToggle;
-			}
-
-			switch (LazyInstall) {
-			case -1:
-				failureswitch = true;
-				break;
-			default:
-				morf->lazyInstall = LazyInstall;
-				// if the lazy install was toggled on, just read the presets from the
-				// calientetools master folder. Otherwise, read from our mod folder.
-				if (morf->lazyInstall) {
-					presetPath = "Data\\CalienteTools\\BodySlide\\SliderPresets";
-				} else {
-					presetPath = "Data\\autoBody\\Presets";
-				}
-			}
-
-			switch (FactionPriority) {
-			case -1:
-				failureswitch = true;
-				break;
-			default:
-				morf->factionPriority = FactionPriority;
-			}
+			morf->factionPriority = FactionPriority;
 
 			switch (WeightBias) {
-			case -1:
-				failureswitch = true;
-				break;
 			case 1:
 				morf->biasamount = atoi(configINI.GetValue("Options", "bWeightBiasAmount"));
 			default:
 				morf->enableWeightBias = WeightBias;
 			}
 
-			switch (weightOptions) {
-			case -1:
-				failureswitch = true;
-				break;
-
-			default:
-				morf->weightOptions = weightOptions;
-			}
-
-			switch (weightSpecific) {
-			case -1:
-				failureswitch = true;
-				break;
-			default:
-				morf->weightSpecific = weightSpecific;
-			}
+			morf->weightOptions = weightOptions;
+			morf->weightSpecific = weightSpecific;
 
 			switch (debugLevel) {
-			case -1:
-				failureswitch = true;
-				break;
 			case 0:
 				spdlog::set_level(spdlog::level::info);
 				logger::info("Debug level set to info");
@@ -689,22 +619,13 @@ namespace Presets
 				break;
 			}
 
-			switch (refitFactor) {
-			case -11111111111:
-				failureswitch = true;
-				break;
-			default:
-				morf->refitFactor = refitFactor;
-			}
+			morf->refitFactor = refitFactor;
 
 			// if (refitExclusion != "") {
 			// 	logger::trace("Refit exclusion keyword found. Setting exclusion keyword to {}", refitExclusion);
 			// 	morf->usingExclusion = true;
 			// 	morf->RefitExclusionKeyword = refitExclusion;
 			// }
-
-			if (failureswitch)
-				logger::critical("The INI is missing values! Please redownload it.");
 
 			return presetPath;
 		}
