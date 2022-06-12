@@ -52,8 +52,6 @@ namespace Presets
 	//morphs.ini and returns true if there is a match found. Configurable to search just actorIDs, race, or faction -- or any of those in combination.
 	bool isInINI(RE::Actor* a_actor, bool racesex, bool faction)
 	{
-		bool found = false;
-
 		auto container = Presets::PresetContainer::GetInstance();
 
 		//must be pointers or shit goes wrong.
@@ -90,9 +88,10 @@ namespace Presets
 				//logger::trace("list sex: {} list race: {}", list.sex, list.race);
 				if (raceName == list.race) {
 					logger::trace("Race match for actor {} found!", a_actor->GetName());
-					found = true;
+					return true;
 				}
 			}
+			return false;
 		}
 
 		// Needs po3's tweaks to work or will CTD
@@ -113,10 +112,12 @@ namespace Presets
 					// actors list, we have a match
 					if (rank.faction == target) {
 						logger::trace("faction match located: {}", fac.faction);
-						found = true;
+
+						return true;
 					}
 				}
 			}
+			return false;
 		}
 
 		//for each formID in the actor preset list, check it against the actor's ID. If there's a match, return true.
@@ -126,11 +127,10 @@ namespace Presets
 			//logger::trace("FormID in the INI is {}", list.formID);
 			if (actorID == list.formID) {
 				logger::trace("{} found a matching config in the INI!", a_actor->GetName());
-				found = true;
+				return true;
 			}
 		}
-
-		return found;
+		return false;
 	}
 
 	// called when we want to generate an actor.
