@@ -87,7 +87,7 @@ Function ShowMenu(Actor akActor)
 
     int pagesNeeded
     if len > 125
-        pagesNeeded = (1 / 125) + 1
+        pagesNeeded = (len / 125) + 1
 
         while i <= pagesNeeded
             listMenu.AddEntryItem("Presets: Page " + (i + 1))
